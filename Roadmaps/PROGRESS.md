@@ -365,7 +365,7 @@
   - Service, Notification, Customer
   - Enums: UserRole, QuoteStatus, ContactStatus, NotificationType, etc
 
-### 3.3 Dashboard Principal (✅ 80% COMPLETO)
+### 3.3 Dashboard Principal (✅ 90% COMPLETO)
 
 **Concluído:**
 
@@ -394,16 +394,19 @@
 - `admin/src/services/{dashboard,quote,notification}.service.ts`
 - `admin/src/lib/utils.ts`
 
-**Pendente:**
-
-- [ ] Gráficos com Recharts (orçamentos por período)
-
 **Backend Integration:**
 
 - ✅ Endpoint GET /api/admin/dashboard/stats implementado
+- ✅ Endpoint GET /api/admin/dashboard/charts implementado
 - ✅ Queries paralelas otimizadas
 - ✅ 7 métricas em tempo real
 - ✅ Logger integrado
+- ✅ Dados agregados: statusData + timelineData (7 dias)
+- ✅ dashboardService.getCharts() no frontend
+
+**Pendente:**
+
+- [ ] Renderizar gráficos com Recharts na UI
 
 ### 3.4 Gerenciamento de Orçamentos (✅ 80% COMPLETO)
 
