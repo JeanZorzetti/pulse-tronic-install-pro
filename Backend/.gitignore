@@ -11,6 +11,7 @@ build/
 *.js.map
 *.d.ts
 !jest.config.js
+!prisma/seed.js
 
 # Environment variables
 .env

@@ -133,13 +133,16 @@ async function main() {
   ];
 
   for (const faq of faqs) {
-    await prisma.fAQ.upsert({
-      where: {
-        id: `faq-${faq.displayOrder}` // Temporary ID for upsert
-      },
-      update: {},
-      create: faq,
+    // Check if FAQ exists by question to avoid duplicates
+    const existing = await prisma.fAQ.findFirst({
+      where: { question: faq.question }
     });
+
+    if (!existing) {
+      await prisma.fAQ.create({
+        data: faq,
+      });
+    }
   }
 
   console.log('✅ FAQs created');
