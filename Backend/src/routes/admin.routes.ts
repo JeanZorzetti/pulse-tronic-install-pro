@@ -3,12 +3,24 @@ import { authenticate, isAdminOrManager } from '../middlewares/auth';
 import { QuoteController } from '../controllers/quote.controller';
 import { ContactController } from '../controllers/contact.controller';
 import { NotificationController } from '../controllers/notification.controller';
+import { DashboardController } from '../controllers/dashboard.controller';
 
 const router = Router();
 
 // Apply authentication to all admin routes
 router.use(authenticate);
 router.use(isAdminOrManager);
+
+/**
+ * Dashboard
+ */
+
+/**
+ * @route   GET /api/admin/dashboard/stats
+ * @desc    Get dashboard statistics
+ * @access  Private (Admin/Manager)
+ */
+router.get('/dashboard/stats', DashboardController.getStats);
 
 /**
  * Quotes Management
