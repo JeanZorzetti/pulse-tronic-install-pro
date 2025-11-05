@@ -1,7 +1,7 @@
 # ✅ Progresso do Desenvolvimento - Pulse Tronic
 
-**Última Atualização:** 06/11/2025 - 01:00
-**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (45%)
+**Última Atualização:** 06/11/2025 - 02:30
+**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (50%)
 
 ---
 
@@ -11,7 +11,7 @@
 |------|--------|-----------|----------------|
 | Fase 1 - Backend Core | ✅ Completo | 100% | ✅ Concluída |
 | Fase 2 - Integrações | ✅ Completo | 100% | ✅ Concluída |
-| Fase 3 - Admin Panel | 🟡 Em Progresso | 45% | 3-4 semanas |
+| Fase 3 - Admin Panel | 🟡 Em Progresso | 50% | 3-4 semanas |
 | Fase 4 - Features Avançadas | ⚪ Pendente | 0% | 4-5 semanas |
 | Fase 5 - Otimizações | ⚪ Pendente | 0% | 2-3 semanas |
 
@@ -303,11 +303,11 @@
 
 ---
 
-## 🎯 Fase 3 - Painel Administrativo (15% Em Andamento)
+## 🎯 Fase 3 - Painel Administrativo (50% Em Andamento)
 
 **Objetivo:** Criar interface de gerenciamento completa para a equipe
 
-**Status Atual:** Setup completo, autenticação implementada, iniciando features
+**Status Atual:** Setup completo, autenticação OK, Dashboard e Quotes implementados, Notificações funcionando
 
 ### 3.1 Setup do Admin Panel (✅ 100% COMPLETO)
 
@@ -444,15 +444,31 @@
 - [ ] Responder via email direto da interface
 - [ ] Filtros por status e data
 
-### 3.6 Sistema de Notificações UI (0%)
+### 3.6 Sistema de Notificações UI (✅ 80% COMPLETO)
 
-**Planejado:**
+**Concluído:**
 
-- [ ] Dropdown de notificações no header
-- [ ] Badge com contador de não lidas
-- [ ] Marcar como lida (individual e todas)
-- [ ] Link para recursos relacionados (quote, contact)
-- [ ] Atualização em tempo real (opcional: WebSocket ou polling)
+- ✅ Dropdown de notificações no header (Radix UI Popover)
+- ✅ Badge com contador de não lidas (mostra 9+ se > 9)
+- ✅ Marcar como lida (individual e todas)
+- ✅ Deletar notificações
+- ✅ Atualização em tempo real (polling a cada 30 segundos)
+- ✅ TanStack Query com cache invalidation
+- ✅ Toast notifications para ações
+- ✅ Loading states e empty states
+- ✅ Ícones por tipo de notificação (FileText, MessageSquare, Calendar)
+- ✅ Formatação de datas com date-fns (pt-BR)
+- ✅ Visual feedback para não lidas (bg-primary/5)
+
+**Arquivos Criados:**
+
+- `admin/src/components/NotificationsDropdown.tsx`
+- `admin/src/components/ui/popover.tsx` (Radix UI wrapper)
+- `admin/package.json` (dep: @radix-ui/react-popover)
+
+**Pendente:**
+
+- [ ] Link para recursos relacionados (clicar abre modal do quote/contact)
 
 ### 3.7 Configurações e CMS (0%)
 

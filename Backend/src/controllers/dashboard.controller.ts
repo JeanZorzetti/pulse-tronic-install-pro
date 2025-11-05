@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { PrismaClient, QuoteStatus, ContactStatus } from '@prisma/client';
+import { PrismaClient, QuoteStatus } from '@prisma/client';
 import { ApiResponseUtil } from '../utils/response';
 import { Logger } from '../services/logger.service';
 import { AuthRequest } from '../types';
@@ -72,7 +72,7 @@ export class DashboardController {
         prisma.quote.count({
           where: {
             status: {
-              in: [QuoteStatus.PENDING, QuoteStatus.IN_ANALYSIS],
+              in: [QuoteStatus.NEW, QuoteStatus.ANALYZING],
             },
           },
         }),
