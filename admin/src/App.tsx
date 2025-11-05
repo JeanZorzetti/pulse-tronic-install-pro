@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import QuotesPage from './pages/QuotesPage';
 import PrivateRoute from './components/PrivateRoute';
 
 const queryClient = new QueryClient({
@@ -27,6 +28,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <DashboardPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/quotes"
+              element={
+                <PrivateRoute>
+                  <QuotesPage />
                 </PrivateRoute>
               }
             />
