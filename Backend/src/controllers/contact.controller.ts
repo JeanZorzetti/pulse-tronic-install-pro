@@ -150,7 +150,7 @@ export class ContactController {
       const { status } = req.body;
 
       if (!['NEW', 'READ', 'REPLIED'].includes(status)) {
-        return ApiResponseUtil.badRequest(res, 'Status inválido');
+        return ApiResponseUtil.error(res, 'Status inválido', 400);
       }
 
       // Get current contact to check respondedAt
