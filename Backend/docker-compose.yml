@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: pulsetronic-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:password@db:5432/pulsetronic
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - pulsetronic-network
+    volumes:
+      # Hot reload for development (comentar em produção)
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+    command: npm run dev
+
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: pulsetronic-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=pulsetronic
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - pulsetronic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: pulsetronic-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - pulsetronic-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Prisma Studio (Database GUI)
+  prisma-studio:
+    image: node:20-alpine
+    container_name: pulsetronic-prisma-studio
+    working_dir: /app
+    ports:
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/pulsetronic
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    networks:
+      - pulsetronic-network
+    depends_on:
+      - db
+    command: sh -c "npm install -g prisma && prisma studio --port 5555 --browser none"
+    profiles:
+      - tools
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  pulsetronic-network:
+    driver: bridge

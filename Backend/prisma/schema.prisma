@@ -1,0 +1,355 @@
+// Prisma Schema for Pulse Tronic Backend
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// User Management (Admin)
+// ==========================================
+
+enum UserRole {
+  ADMIN       // Full access
+  MANAGER     // Can manage content and view reports
+  ATTENDANT   // Can only respond to quotes/contacts
+  TECHNICIAN  // Can only view/manage appointments
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String   // Hashed with bcrypt
+  name          String
+  role          UserRole @default(ATTENDANT)
+  isActive      Boolean  @default(true)
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+
+  // Relations
+  quotes        Quote[]
+  appointments  Appointment[]
+
+  @@map("users")
+}
+
+// ==========================================
+// Customer Management
+// ==========================================
+
+model Customer {
+  id            String   @id @default(uuid())
+  name          String
+  email         String?
+  phone         String   // WhatsApp number
+  vehicle       String?  // Vehicle model and year
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  quotes        Quote[]
+  appointments  Appointment[]
+  testimonials  Testimonial[]
+
+  @@index([phone])
+  @@index([email])
+  @@map("customers")
+}
+
+// ==========================================
+// Services Offered
+// ==========================================
+
+enum ServiceCategory {
+  MULTIMEDIA    // Central Multimídia
+  SOUND         // Sistema de Som
+  CAMERA        // Câmeras e Dash Cams
+  SECURITY      // Alarmes e Segurança
+  ACCESSORIES   // Outros Acessórios
+}
+
+model Service {
+  id            String          @id @default(uuid())
+  title         String
+  description   String          @db.Text
+  category      ServiceCategory
+  estimatedTime Int?            // Estimated time in minutes
+  isActive      Boolean         @default(true)
+  displayOrder  Int             @default(0)
+
+  // SEO
+  slug          String          @unique
+  metaTitle     String?
+  metaDescription String?
+
+  // Timestamps
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Relations
+  quotes        Quote[]
+  items         ServiceItem[]
+
+  @@index([category])
+  @@index([slug])
+  @@map("services")
+}
+
+model ServiceItem {
+  id          String  @id @default(uuid())
+  serviceId   String
+  item        String  // Ex: "Integração com comandos de volante"
+  displayOrder Int    @default(0)
+
+  // Relations
+  service     Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@map("service_items")
+}
+
+// ==========================================
+// Quotes (Orçamentos)
+// ==========================================
+
+enum QuoteStatus {
+  NEW           // Novo
+  ANALYZING     // Em análise
+  QUOTE_SENT    // Orçamento enviado
+  APPROVED      // Aprovado pelo cliente
+  REJECTED      // Recusado
+  COMPLETED     // Finalizado
+}
+
+model Quote {
+  id            String      @id @default(uuid())
+  customerId    String
+  serviceId     String?
+
+  // Quote Details
+  equipment     String      @db.Text  // Equipment description
+  vehicle       String?                // Vehicle info if not in customer
+  message       String?     @db.Text   // Additional message
+  status        QuoteStatus @default(NEW)
+
+  // Quote values (optional)
+  estimatedValue Decimal?   @db.Decimal(10, 2)
+  notes         String?     @db.Text    // Internal notes
+
+  // Assignment
+  assignedToId  String?
+
+  // Timestamps
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  respondedAt   DateTime?
+
+  // Relations
+  customer      Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  service       Service?    @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  assignedTo    User?       @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  appointment   Appointment?
+
+  @@index([customerId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("quotes")
+}
+
+// ==========================================
+// Appointments (Agendamentos)
+// ==========================================
+
+enum AppointmentStatus {
+  SCHEDULED   // Agendado
+  CONFIRMED   // Confirmado
+  IN_PROGRESS // Em andamento
+  COMPLETED   // Concluído
+  CANCELLED   // Cancelado
+  NO_SHOW     // Cliente não compareceu
+}
+
+model Appointment {
+  id            String            @id @default(uuid())
+  customerId    String
+  quoteId       String?           @unique
+
+  // Appointment Details
+  scheduledDate DateTime
+  estimatedDuration Int           // In minutes
+  status        AppointmentStatus @default(SCHEDULED)
+
+  // Service Details
+  serviceName   String
+  vehicleInfo   String
+  equipmentInfo String            @db.Text
+
+  // Notes
+  notes         String?           @db.Text
+  internalNotes String?           @db.Text
+
+  // Assignment
+  assignedToId  String?
+
+  // Completion
+  completedAt   DateTime?
+
+  // Timestamps
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // Relations
+  customer      Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  quote         Quote?            @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  assignedTo    User?             @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([customerId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@map("appointments")
+}
+
+// ==========================================
+// Testimonials (Depoimentos)
+// ==========================================
+
+model Testimonial {
+  id            String   @id @default(uuid())
+  customerId    String
+
+  // Testimonial Content
+  name          String   // Can be different from customer name
+  rating        Int      // 1-5 stars
+  comment       String   @db.Text
+
+  // Moderation
+  isApproved    Boolean  @default(false)
+  isFeatured    Boolean  @default(false)
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([isApproved])
+  @@index([isFeatured])
+  @@index([rating])
+  @@map("testimonials")
+}
+
+// ==========================================
+// Portfolio/Gallery
+// ==========================================
+
+model Portfolio {
+  id            String          @id @default(uuid())
+  title         String
+  description   String          @db.Text
+  category      ServiceCategory
+
+  // Vehicle Info
+  vehicleModel  String
+  equipmentUsed String          @db.Text
+
+  // Images
+  beforeImage   String?         // URL to before image
+  afterImage    String          // URL to after image
+  additionalImages String[]      // Array of additional image URLs
+
+  // Display
+  isFeatured    Boolean         @default(false)
+  displayOrder  Int             @default(0)
+
+  // SEO
+  slug          String          @unique
+
+  // Timestamps
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([category])
+  @@index([isFeatured])
+  @@index([slug])
+  @@map("portfolio")
+}
+
+// ==========================================
+// FAQ
+// ==========================================
+
+model FAQ {
+  id            String   @id @default(uuid())
+  question      String   @db.Text
+  answer        String   @db.Text
+  displayOrder  Int      @default(0)
+  isActive      Boolean  @default(true)
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@map("faqs")
+}
+
+// ==========================================
+// Contact Messages
+// ==========================================
+
+enum ContactStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+model Contact {
+  id            String        @id @default(uuid())
+  name          String
+  email         String?
+  phone         String
+  subject       String?
+  message       String        @db.Text
+  status        ContactStatus @default(NEW)
+
+  // Response
+  response      String?       @db.Text
+  respondedAt   DateTime?
+
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contacts")
+}
+
+// ==========================================
+// Company Settings
+// ==========================================
+
+model Settings {
+  id            String   @id @default(uuid())
+  key           String   @unique
+  value         String   @db.Text
+  description   String?
+
+  // Timestamps
+  updatedAt     DateTime @updatedAt
+
+  @@map("settings")
+}
