@@ -6,8 +6,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { trackWhatsAppClick, trackPhoneClick } from "@/hooks/useAnalytics";
 
 const Contato = () => {
+  const handleWhatsAppClick = () => {
+    trackWhatsAppClick('contact-page-cta');
+  };
+
+  const handlePhoneClick = () => {
+    trackPhoneClick('contact-page-info');
+  };
   const contactInfo = [
     {
       icon: Phone,
@@ -61,9 +69,10 @@ const Contato = () => {
                       <div>
                         <h3 className="font-semibold mb-1">{info.title}</h3>
                         {info.link ? (
-                          <a 
-                            href={info.link} 
+                          <a
+                            href={info.link}
                             className="text-muted-foreground hover:text-primary transition-colors"
+                            onClick={info.icon === Phone ? handlePhoneClick : undefined}
                           >
                             {info.content}
                           </a>
@@ -85,7 +94,12 @@ const Contato = () => {
                       <h3 className="font-semibold mb-1">Atendimento Rápido via WhatsApp</h3>
                       <p className="text-sm opacity-90 mb-3">Tire suas dúvidas instantaneamente!</p>
                       <Button variant="secondary" size="sm" asChild>
-                        <a href="https://wa.me/55XXXXXXXXXXX" target="_blank" rel="noopener noreferrer">
+                        <a
+                          href="https://wa.me/55XXXXXXXXXXX"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={handleWhatsAppClick}
+                        >
                           Abrir WhatsApp
                         </a>
                       </Button>

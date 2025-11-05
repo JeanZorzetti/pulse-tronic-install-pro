@@ -1,7 +1,7 @@
 /**
  * Google Analytics 4 Custom Hook
  *
- * Tracking ID: G-7TET4P858V
+ * Tracking ID: G-PKKCJLGBQT
  *
  * Custom Events:
  * - quote_submitted: Quando um orçamento é solicitado
@@ -43,7 +43,7 @@ export const trackEvent = (
  */
 export const trackPageView = (url: string, title?: string) => {
   if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', 'G-7TET4P858V', {
+    window.gtag('config', 'G-PKKCJLGBQT', {
       page_path: url,
       page_title: title,
     });

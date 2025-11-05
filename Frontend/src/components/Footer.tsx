@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Instagram, Facebook } from "lucide-react";
 import logo from "@/assets/pulse-tronic-logo.png";
+import { trackPhoneClick } from "@/hooks/useAnalytics";
 
 const Footer = () => {
+  const handlePhoneClick = () => {
+    trackPhoneClick('footer');
+  };
   return (
     <footer className="bg-secondary/30 border-t border-border">
       <div className="container mx-auto px-4 py-12">
@@ -49,7 +53,13 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
                 <Phone size={18} className="text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-sm text-muted-foreground">(XX) XXXXX-XXXX</span>
+                <a
+                  href="tel:+55XXXXXXXXXXX"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  onClick={handlePhoneClick}
+                >
+                  (XX) XXXXX-XXXX
+                </a>
               </li>
               <li className="flex items-start gap-2">
                 <Mail size={18} className="text-primary mt-0.5 flex-shrink-0" />
