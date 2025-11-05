@@ -3,7 +3,7 @@ import { AnyZodObject, ZodError } from 'zod';
 import { ApiResponseUtil } from '../utils/response';
 
 export const validate = (schema: AnyZodObject) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await schema.parseAsync({
         body: req.body,
@@ -17,9 +17,11 @@ export const validate = (schema: AnyZodObject) => {
           field: err.path.join('.'),
           message: err.message,
         }));
-        return ApiResponseUtil.validationError(res, errors);
+        ApiResponseUtil.validationError(res, errors);
+        return;
       }
-      return ApiResponseUtil.serverError(res);
+      ApiResponseUtil.serverError(res);
+      return;
     }
   };
 };

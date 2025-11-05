@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export class FAQController {
   // Get all active FAQs (Public)
-  static async getAll(req: Request, res: Response) {
+  static async getAll(_req: Request, res: Response) {
     try {
       const faqs = await prisma.fAQ.findMany({
         where: { isActive: true },
