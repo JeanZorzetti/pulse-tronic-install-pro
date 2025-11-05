@@ -132,4 +132,68 @@ export class DashboardController {
       return ApiResponseUtil.error(res, 'Failed to retrieve statistics', 500);
     }
   }
+
+  /**
+   * GET /api/admin/dashboard/charts
+   * Get data for dashboard charts
+   */
+  static async getCharts(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return ApiResponseUtil.error(res, 'User not authenticated', 401);
+      }
+
+      // Get quotes by status
+      const quotesByStatus = await prisma.quote.groupBy({
+        by: ['status'],
+        _count: {
+          id: true,
+        },
+      });
+
+      const statusData = quotesByStatus.map((item) => ({
+        status: item.status,
+        count: item._count.id,
+      }));
+
+      // Get quotes by last 7 days
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const quotesByDay = await prisma.$queryRaw<Array<{ date: string; count: bigint }>>`
+        SELECT
+          DATE(created_at) as date,
+          COUNT(*)::bigint as count
+        FROM "Quote"
+        WHERE created_at >= ${sevenDaysAgo}
+        GROUP BY DATE(created_at)
+        ORDER BY date ASC
+      `;
+
+      const timelineData = quotesByDay.map((item) => ({
+        date: item.date,
+        count: Number(item.count),
+      }));
+
+      const charts = {
+        statusData,
+        timelineData,
+      };
+
+      Logger.info('Dashboard charts retrieved', {
+        userId,
+        statusCount: statusData.length,
+        timelineCount: timelineData.length,
+      });
+
+      return ApiResponseUtil.success(res, charts, 'Charts data retrieved successfully');
+    } catch (error) {
+      Logger.error('Get dashboard charts error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId: req.user?.userId,
+      });
+      return ApiResponseUtil.error(res, 'Failed to retrieve charts data', 500);
+    }
+  }
 }

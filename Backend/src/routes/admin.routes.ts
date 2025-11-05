@@ -23,6 +23,13 @@ router.use(isAdminOrManager);
 router.get('/dashboard/stats', DashboardController.getStats);
 
 /**
+ * @route   GET /api/admin/dashboard/charts
+ * @desc    Get dashboard charts data
+ * @access  Private (Admin/Manager)
+ */
+router.get('/dashboard/charts', DashboardController.getCharts);
+
+/**
  * Quotes Management
  */
 
