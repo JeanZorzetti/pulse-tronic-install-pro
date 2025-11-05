@@ -3,7 +3,7 @@ import { Request } from 'express';
 // Extend Express Request to include authenticated user
 export interface AuthRequest extends Request {
   user?: {
-    id: string;
+    userId: string;
     email: string;
     role: string;
   };

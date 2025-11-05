@@ -2,9 +2,10 @@ import nodemailer, { Transporter } from 'nodemailer';
 import { env } from '../config/env';
 
 export class EmailService {
+  private static instance: EmailService;
   private transporter: Transporter;
 
-  constructor() {
+  private constructor() {
     this.transporter = nodemailer.createTransport({
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,
@@ -14,6 +15,13 @@ export class EmailService {
         pass: env.SMTP_PASS,
       },
     });
+  }
+
+  static getInstance(): EmailService {
+    if (!EmailService.instance) {
+      EmailService.instance = new EmailService();
+    }
+    return EmailService.instance;
   }
 
   // Verify email configuration
@@ -213,6 +221,3 @@ export class EmailService {
     });
   }
 }
-
-// Singleton instance
-export const emailService = new EmailService();

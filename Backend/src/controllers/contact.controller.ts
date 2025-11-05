@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { ApiResponseUtil } from '../utils/response';
 import { CreateContactInput } from '../validators/contact.validator';
+import { EmailService } from '../services/email.service';
 
 const prisma = new PrismaClient();
+const emailService = EmailService.getInstance();
 
 export class ContactController {
   // Create a new contact message
@@ -21,8 +23,19 @@ export class ContactController {
         },
       });
 
-      // TODO: Send email notification to admin
-      // TODO: Send auto-reply to customer
+      // Send emails (don't wait for them)
+      if (email) {
+        Promise.all([
+          emailService.sendContactConfirmation(email, name),
+          emailService.sendContactNotificationToAdmin({
+            name,
+            email,
+            phone,
+            subject,
+            message,
+          }),
+        ]).catch((error) => console.error('Error sending emails:', error));
+      }
 
       return ApiResponseUtil.created(
         res,
@@ -36,7 +49,7 @@ export class ContactController {
   }
 
   // Get all contact messages (Admin)
-  static async getAll(req: Request, res: Response) {
+  static async getAllAdmin(req: Request, res: Response) {
     try {
       const { page = 1, limit = 20, status } = req.query;
 
@@ -71,7 +84,7 @@ export class ContactController {
   }
 
   // Get contact by ID (Admin)
-  static async getById(req: Request, res: Response) {
+  static async getByIdAdmin(req: Request, res: Response) {
     try {
       const { id } = req.params;
 
@@ -98,8 +111,8 @@ export class ContactController {
     }
   }
 
-  // Reply to contact (Admin)
-  static async reply(req: Request, res: Response) {
+  // Update/Reply to contact (Admin)
+  static async updateAdmin(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { response } = req.body;
@@ -123,7 +136,7 @@ export class ContactController {
   }
 
   // Delete contact (Admin)
-  static async delete(req: Request, res: Response) {
+  static async deleteAdmin(req: Request, res: Response) {
     try {
       const { id } = req.params;
 

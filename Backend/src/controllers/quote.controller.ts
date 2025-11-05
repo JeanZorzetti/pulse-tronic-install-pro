@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { ApiResponseUtil } from '../utils/response';
 import { CreateQuoteInput } from '../validators/quote.validator';
+import { EmailService } from '../services/email.service';
 
 const prisma = new PrismaClient();
+const emailService = EmailService.getInstance();
 
 export class QuoteController {
   // Create a new quote request
@@ -55,8 +57,28 @@ export class QuoteController {
         },
       });
 
-      // TODO: Send email notification to admin
-      // TODO: Send confirmation email to customer
+      // Send emails (don't wait for them)
+      if (customer.email) {
+        Promise.all([
+          emailService.sendQuoteConfirmation(
+            customer.email,
+            customer.name,
+            {
+              vehicle: quote.vehicle,
+              equipment: quote.equipment,
+              service: quote.service?.title,
+            }
+          ),
+          emailService.sendQuoteNotificationToAdmin({
+            customerName: customer.name,
+            customerEmail: customer.email,
+            customerPhone: customer.phone,
+            vehicle: quote.vehicle,
+            equipment: quote.equipment,
+            message: quote.message,
+          }),
+        ]).catch((error) => console.error('Error sending emails:', error));
+      }
 
       return ApiResponseUtil.created(res, quote, 'Orçamento solicitado com sucesso! Entraremos em contato em breve.');
     } catch (error) {
@@ -66,7 +88,7 @@ export class QuoteController {
   }
 
   // Get all quotes (Admin)
-  static async getAll(req: Request, res: Response) {
+  static async getAllAdmin(req: Request, res: Response) {
     try {
       const { page = 1, limit = 20, status, serviceId } = req.query;
 
@@ -123,8 +145,8 @@ export class QuoteController {
     }
   }
 
-  // Get quote by ID
-  static async getById(req: Request, res: Response) {
+  // Get quote by ID (Admin)
+  static async getByIdAdmin(req: Request, res: Response) {
     try {
       const { id } = req.params;
 
@@ -160,7 +182,7 @@ export class QuoteController {
   }
 
   // Update quote (Admin)
-  static async update(req: Request, res: Response) {
+  static async updateAdmin(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { status, estimatedValue, notes, assignedToId } = req.body;
@@ -190,7 +212,7 @@ export class QuoteController {
   }
 
   // Delete quote (Admin)
-  static async delete(req: Request, res: Response) {
+  static async deleteAdmin(req: Request, res: Response) {
     try {
       const { id } = req.params;
 
