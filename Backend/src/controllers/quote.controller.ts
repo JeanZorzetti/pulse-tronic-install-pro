@@ -4,6 +4,8 @@ import { ApiResponseUtil } from '../utils/response';
 import { CreateQuoteInput } from '../validators/quote.validator';
 import { EmailService } from '../services/email.service';
 import { NotificationService } from '../services/notification.service';
+import { Logger } from '../services/logger.service';
+import { AuthRequest } from '../types';
 
 const prisma = new PrismaClient();
 const emailService = EmailService.getInstance();
@@ -79,12 +81,14 @@ export class QuoteController {
             message: quote.message,
           }),
           NotificationService.notifyNewQuote(quote.id, customer.name),
-        ]).catch((error) => console.error('Error sending emails/notifications:', error));
+        ]).catch((error) => Logger.error('Error sending emails/notifications', { error: error instanceof Error ? error.message : 'Unknown error', quoteId: quote.id }));
       }
+
+      Logger.info('Quote created', { quoteId: quote.id, customerId: customer.id, equipment });
 
       return ApiResponseUtil.created(res, quote, 'Orçamento solicitado com sucesso! Entraremos em contato em breve.');
     } catch (error) {
-      console.error('Error creating quote:', error);
+      Logger.error('Error creating quote', { error: error instanceof Error ? error.message : 'Unknown error' });
       return ApiResponseUtil.serverError(res, 'Erro ao criar orçamento');
     }
   }
@@ -134,6 +138,13 @@ export class QuoteController {
         prisma.quote.count({ where }),
       ]);
 
+      Logger.info('Quotes fetched', {
+        userId: (req as AuthRequest).user?.userId,
+        total,
+        page,
+        status: status || 'all',
+      });
+
       return ApiResponseUtil.paginated(
         res,
         quotes,
@@ -142,7 +153,10 @@ export class QuoteController {
         total
       );
     } catch (error) {
-      console.error('Error fetching quotes:', error);
+      Logger.error('Error fetching quotes', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId: (req as AuthRequest).user?.userId,
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao buscar orçamentos');
     }
   }
@@ -176,10 +190,69 @@ export class QuoteController {
         return ApiResponseUtil.notFound(res, 'Orçamento não encontrado');
       }
 
+      Logger.info('Quote fetched by ID', { quoteId: id, userId: (req as AuthRequest).user?.userId });
+
       return ApiResponseUtil.success(res, quote);
     } catch (error) {
-      console.error('Error fetching quote:', error);
+      Logger.error('Error fetching quote', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        quoteId: req.params.id,
+        userId: (req as AuthRequest).user?.userId,
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao buscar orçamento');
+    }
+  }
+
+  // Update quote status only (Admin)
+  static async updateStatusAdmin(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const validStatuses = ['NEW', 'ANALYZING', 'QUOTE_SENT', 'APPROVED', 'REJECTED', 'COMPLETED'];
+      if (!validStatuses.includes(status)) {
+        return ApiResponseUtil.error(res, 'Status inválido', 400);
+      }
+
+      // Get current quote
+      const currentQuote = await prisma.quote.findUnique({
+        where: { id },
+        include: { customer: true },
+      });
+
+      if (!currentQuote) {
+        return ApiResponseUtil.notFound(res, 'Orçamento não encontrado');
+      }
+
+      const quote = await prisma.quote.update({
+        where: { id },
+        data: {
+          status,
+          ...(status !== 'NEW' && !currentQuote.respondedAt ? { respondedAt: new Date() } : {}),
+        },
+        include: {
+          customer: true,
+          service: true,
+        },
+      });
+
+      Logger.info('Quote status updated', {
+        quoteId: id,
+        oldStatus: currentQuote.status,
+        newStatus: status,
+        userId: (req as AuthRequest).user?.userId,
+      });
+
+      // TODO: Send email notification to customer about status change
+
+      return ApiResponseUtil.success(res, quote, 'Status atualizado com sucesso');
+    } catch (error) {
+      Logger.error('Error updating quote status', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        quoteId: req.params.id,
+        userId: (req as AuthRequest).user?.userId,
+      });
+      return ApiResponseUtil.serverError(res, 'Erro ao atualizar status');
     }
   }
 
@@ -204,11 +277,20 @@ export class QuoteController {
         },
       });
 
+      Logger.info('Quote updated', {
+        quoteId: id,
+        userId: (req as AuthRequest).user?.userId,
+      });
+
       // TODO: Send email notification to customer about status change
 
       return ApiResponseUtil.success(res, quote, 'Orçamento atualizado com sucesso');
     } catch (error) {
-      console.error('Error updating quote:', error);
+      Logger.error('Error updating quote', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        quoteId: req.params.id,
+        userId: (req as AuthRequest).user?.userId,
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao atualizar orçamento');
     }
   }
@@ -222,9 +304,18 @@ export class QuoteController {
         where: { id },
       });
 
+      Logger.info('Quote deleted', {
+        quoteId: id,
+        userId: (req as AuthRequest).user?.userId,
+      });
+
       return ApiResponseUtil.success(res, null, 'Orçamento excluído com sucesso');
     } catch (error) {
-      console.error('Error deleting quote:', error);
+      Logger.error('Error deleting quote', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        quoteId: req.params.id,
+        userId: (req as AuthRequest).user?.userId,
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao excluir orçamento');
     }
   }

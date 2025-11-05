@@ -41,6 +41,13 @@ router.get('/quotes', QuoteController.getAllAdmin);
 router.get('/quotes/:id', QuoteController.getByIdAdmin);
 
 /**
+ * @route   PATCH /api/admin/quotes/:id/status
+ * @desc    Update quote status
+ * @access  Private (Admin/Manager)
+ */
+router.patch('/quotes/:id/status', QuoteController.updateStatusAdmin);
+
+/**
  * @route   PUT /api/admin/quotes/:id
  * @desc    Update quote
  * @access  Private (Admin/Manager)

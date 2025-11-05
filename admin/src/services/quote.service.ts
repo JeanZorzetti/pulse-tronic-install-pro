@@ -1,5 +1,5 @@
 import { api } from '../lib/axios';
-import type { ApiResponse, Quote, PaginatedResponse } from '../types';
+import type { ApiResponse, Quote, PaginatedResponse, QuoteStatus } from '../types';
 
 export const quoteService = {
   async getAll(params?: {
@@ -15,6 +15,11 @@ export const quoteService = {
 
   async getById(id: string): Promise<Quote> {
     const response = await api.get<ApiResponse<Quote>>(`/admin/quotes/${id}`);
+    return response.data.data;
+  },
+
+  async updateStatus(id: string, status: QuoteStatus): Promise<Quote> {
+    const response = await api.patch<ApiResponse<Quote>>(`/admin/quotes/${id}/status`, { status });
     return response.data.data;
   },
 
