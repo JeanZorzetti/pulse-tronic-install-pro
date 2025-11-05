@@ -4,6 +4,8 @@ import { ApiResponseUtil } from '../utils/response';
 import { CreateContactInput } from '../validators/contact.validator';
 import { EmailService } from '../services/email.service';
 import { NotificationService } from '../services/notification.service';
+import { Logger } from '../services/logger.service';
+import { AuthRequest } from '../types';
 
 const prisma = new PrismaClient();
 const emailService = EmailService.getInstance();
@@ -36,8 +38,10 @@ export class ContactController {
             message,
           }),
           NotificationService.notifyNewContact(contact.id, name, subject),
-        ]).catch((error) => console.error('Error sending emails/notifications:', error));
+        ]).catch((error) => Logger.error('Error sending emails/notifications', { error: error instanceof Error ? error.message : 'Unknown error', contactId: contact.id }));
       }
+
+      Logger.info('Contact created', { contactId: contact.id, name, email });
 
       return ApiResponseUtil.created(
         res,
@@ -45,7 +49,7 @@ export class ContactController {
         'Mensagem enviada com sucesso! Responderemos em breve.'
       );
     } catch (error) {
-      console.error('Error creating contact:', error);
+      Logger.error('Error creating contact', { error: error instanceof Error ? error.message : 'Unknown error' });
       return ApiResponseUtil.serverError(res, 'Erro ao enviar mensagem');
     }
   }
@@ -53,10 +57,20 @@ export class ContactController {
   // Get all contact messages (Admin)
   static async getAllAdmin(req: Request, res: Response) {
     try {
-      const { page = 1, limit = 20, status } = req.query;
+      const { page = 1, limit = 20, status, search } = req.query;
 
       const where: any = {};
       if (status) where.status = status;
+
+      // Add search functionality
+      if (search && typeof search === 'string') {
+        where.OR = [
+          { name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { subject: { contains: search, mode: 'insensitive' } },
+          { message: { contains: search, mode: 'insensitive' } },
+        ];
+      }
 
       const skip = (Number(page) - 1) * Number(limit);
 
@@ -72,6 +86,14 @@ export class ContactController {
         prisma.contact.count({ where }),
       ]);
 
+      Logger.info('Contacts fetched', {
+        userId: (req as AuthRequest).user?.userId,
+        total,
+        page,
+        status: status || 'all',
+        search: search || 'none'
+      });
+
       return ApiResponseUtil.paginated(
         res,
         contacts,
@@ -80,7 +102,10 @@ export class ContactController {
         total
       );
     } catch (error) {
-      console.error('Error fetching contacts:', error);
+      Logger.error('Error fetching contacts', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId: (req as AuthRequest).user?.userId
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao buscar mensagens');
     }
   }
@@ -104,12 +129,62 @@ export class ContactController {
           where: { id },
           data: { status: 'READ' },
         });
+        Logger.info('Contact marked as read', { contactId: id, userId: (req as AuthRequest).user?.userId });
       }
 
       return ApiResponseUtil.success(res, contact);
     } catch (error) {
-      console.error('Error fetching contact:', error);
+      Logger.error('Error fetching contact', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        contactId: req.params.id,
+        userId: (req as AuthRequest).user?.userId
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao buscar mensagem');
+    }
+  }
+
+  // Update contact status only (Admin)
+  static async updateStatusAdmin(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!['NEW', 'READ', 'REPLIED'].includes(status)) {
+        return ApiResponseUtil.badRequest(res, 'Status inválido');
+      }
+
+      // Get current contact to check respondedAt
+      const currentContact = await prisma.contact.findUnique({
+        where: { id },
+      });
+
+      if (!currentContact) {
+        return ApiResponseUtil.notFound(res, 'Contato não encontrado');
+      }
+
+      const contact = await prisma.contact.update({
+        where: { id },
+        data: {
+          status,
+          ...(status === 'REPLIED' && !currentContact.respondedAt ? { respondedAt: new Date() } : {}),
+        },
+      });
+
+      Logger.info('Contact status updated', {
+        contactId: id,
+        oldStatus: currentContact.status,
+        newStatus: status,
+        userId: (req as AuthRequest).user?.userId
+      });
+
+      return ApiResponseUtil.success(res, contact, 'Status atualizado com sucesso');
+    } catch (error) {
+      Logger.error('Error updating contact status', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        contactId: req.params.id,
+        userId: (req as AuthRequest).user?.userId
+      });
+      return ApiResponseUtil.serverError(res, 'Erro ao atualizar status');
     }
   }
 
@@ -128,11 +203,20 @@ export class ContactController {
         },
       });
 
+      Logger.info('Contact replied', {
+        contactId: id,
+        userId: (req as AuthRequest).user?.userId
+      });
+
       // TODO: Send email response to customer
 
       return ApiResponseUtil.success(res, contact, 'Resposta enviada com sucesso');
     } catch (error) {
-      console.error('Error replying to contact:', error);
+      Logger.error('Error replying to contact', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        contactId: req.params.id,
+        userId: (req as AuthRequest).user?.userId
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao enviar resposta');
     }
   }
@@ -146,9 +230,18 @@ export class ContactController {
         where: { id },
       });
 
+      Logger.info('Contact deleted', {
+        contactId: id,
+        userId: (req as AuthRequest).user?.userId
+      });
+
       return ApiResponseUtil.success(res, null, 'Mensagem excluída com sucesso');
     } catch (error) {
-      console.error('Error deleting contact:', error);
+      Logger.error('Error deleting contact', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        contactId: req.params.id,
+        userId: (req as AuthRequest).user?.userId
+      });
       return ApiResponseUtil.serverError(res, 'Erro ao excluir mensagem');
     }
   }

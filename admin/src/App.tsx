@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import QuotesPage from './pages/QuotesPage';
+import ContactsPage from './pages/ContactsPage';
 import PrivateRoute from './components/PrivateRoute';
 
 const queryClient = new QueryClient({
@@ -36,6 +37,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <QuotesPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/contacts"
+              element={
+                <PrivateRoute>
+                  <ContactsPage />
                 </PrivateRoute>
               }
             />

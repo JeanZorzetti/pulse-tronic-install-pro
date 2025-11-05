@@ -73,6 +73,13 @@ router.get('/contacts', ContactController.getAllAdmin);
 router.get('/contacts/:id', ContactController.getByIdAdmin);
 
 /**
+ * @route   PATCH /api/admin/contacts/:id/status
+ * @desc    Update contact status
+ * @access  Private (Admin/Manager)
+ */
+router.patch('/contacts/:id/status', ContactController.updateStatusAdmin);
+
+/**
  * @route   PUT /api/admin/contacts/:id
  * @desc    Update contact status/response
  * @access  Private (Admin/Manager)
