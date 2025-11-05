@@ -38,8 +38,48 @@ model User {
   // Relations
   quotes        Quote[]
   appointments  Appointment[]
+  notifications Notification[]
 
   @@map("users")
+}
+
+// ==========================================
+// Notifications (Admin Alerts)
+// ==========================================
+
+enum NotificationType {
+  NEW_QUOTE      // Novo orçamento recebido
+  NEW_CONTACT    // Nova mensagem de contato
+  NEW_APPOINTMENT // Novo agendamento
+  QUOTE_UPDATED  // Orçamento atualizado
+}
+
+model Notification {
+  id            String           @id @default(uuid())
+  userId        String?          // null = all admins
+  type          NotificationType
+  title         String
+  message       String           @db.Text
+
+  // Related Entity
+  relatedId     String?          // ID do quote, contact, etc
+
+  // Status
+  isRead        Boolean          @default(false)
+  readAt        DateTime?
+
+  // Timestamps
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  // Relations
+  user          User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@map("notifications")
 }
 
 // ==========================================

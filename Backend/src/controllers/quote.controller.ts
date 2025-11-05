@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { ApiResponseUtil } from '../utils/response';
 import { CreateQuoteInput } from '../validators/quote.validator';
 import { EmailService } from '../services/email.service';
+import { NotificationService } from '../services/notification.service';
 
 const prisma = new PrismaClient();
 const emailService = EmailService.getInstance();
@@ -57,7 +58,7 @@ export class QuoteController {
         },
       });
 
-      // Send emails (don't wait for them)
+      // Send emails and create notification (don't wait for them)
       if (customer.email) {
         Promise.all([
           emailService.sendQuoteConfirmation(
@@ -77,7 +78,8 @@ export class QuoteController {
             equipment: quote.equipment,
             message: quote.message,
           }),
-        ]).catch((error) => console.error('Error sending emails:', error));
+          NotificationService.notifyNewQuote(quote.id, customer.name),
+        ]).catch((error) => console.error('Error sending emails/notifications:', error));
       }
 
       return ApiResponseUtil.created(res, quote, 'Orçamento solicitado com sucesso! Entraremos em contato em breve.');

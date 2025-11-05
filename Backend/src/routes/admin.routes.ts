@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate, isAdminOrManager } from '../middlewares/auth';
 import { QuoteController } from '../controllers/quote.controller';
 import { ContactController } from '../controllers/contact.controller';
+import { NotificationController } from '../controllers/notification.controller';
 
 const router = Router();
 
@@ -72,5 +73,44 @@ router.put('/contacts/:id', ContactController.updateAdmin);
  * @access  Private (Admin/Manager)
  */
 router.delete('/contacts/:id', ContactController.deleteAdmin);
+
+/**
+ * Notifications Management
+ */
+
+/**
+ * @route   GET /api/admin/notifications
+ * @desc    Get user notifications with pagination
+ * @access  Private (Admin/Manager)
+ */
+router.get('/notifications', NotificationController.getNotifications);
+
+/**
+ * @route   GET /api/admin/notifications/unread-count
+ * @desc    Get count of unread notifications
+ * @access  Private (Admin/Manager)
+ */
+router.get('/notifications/unread-count', NotificationController.getUnreadCount);
+
+/**
+ * @route   PATCH /api/admin/notifications/:id/read
+ * @desc    Mark notification as read
+ * @access  Private (Admin/Manager)
+ */
+router.patch('/notifications/:id/read', NotificationController.markAsRead);
+
+/**
+ * @route   PATCH /api/admin/notifications/mark-all-read
+ * @desc    Mark all notifications as read
+ * @access  Private (Admin/Manager)
+ */
+router.patch('/notifications/mark-all-read', NotificationController.markAllAsRead);
+
+/**
+ * @route   DELETE /api/admin/notifications/:id
+ * @desc    Delete notification
+ * @access  Private (Admin/Manager)
+ */
+router.delete('/notifications/:id', NotificationController.deleteNotification);
 
 export default router;

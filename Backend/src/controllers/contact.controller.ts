@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { ApiResponseUtil } from '../utils/response';
 import { CreateContactInput } from '../validators/contact.validator';
 import { EmailService } from '../services/email.service';
+import { NotificationService } from '../services/notification.service';
 
 const prisma = new PrismaClient();
 const emailService = EmailService.getInstance();
@@ -23,7 +24,7 @@ export class ContactController {
         },
       });
 
-      // Send emails (don't wait for them)
+      // Send emails and create notification (don't wait for them)
       if (email) {
         Promise.all([
           emailService.sendContactConfirmation(email, name),
@@ -34,7 +35,8 @@ export class ContactController {
             subject,
             message,
           }),
-        ]).catch((error) => console.error('Error sending emails:', error));
+          NotificationService.notifyNewContact(contact.id, name, subject),
+        ]).catch((error) => console.error('Error sending emails/notifications:', error));
       }
 
       return ApiResponseUtil.created(
