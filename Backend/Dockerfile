@@ -36,6 +36,9 @@ FROM node:20-alpine AS production
 # Set working directory
 WORKDIR /app
 
+# Install OpenSSL for Prisma (required for query engine)
+RUN apk add --no-cache openssl
+
 # Create a non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
