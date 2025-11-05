@@ -1,7 +1,7 @@
-import { Bell, Menu, LogOut, User } from 'lucide-react';
+import { Menu, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import NotificationsDropdown from '@/components/NotificationsDropdown';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -41,15 +41,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Right: Notifications + User */}
         <div className="flex items-center gap-2 md:gap-4">
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <Badge
-              variant="destructive"
-              className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]"
-            >
-              0
-            </Badge>
-          </Button>
+          <NotificationsDropdown />
 
           {/* User Info */}
           <div className="hidden md:flex flex-col items-end">
