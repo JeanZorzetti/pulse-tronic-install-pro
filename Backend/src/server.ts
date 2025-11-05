@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
+import { Logger } from './services/logger.service';
+import { requestLogger } from './middlewares/requestLogger';
 
 // Import routes
 import routes from './routes';
@@ -37,6 +39,9 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Request Logging Middleware
+app.use(requestLogger);
+
 // Health Check Endpoint
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
@@ -59,8 +64,14 @@ app.use((_req: Request, res: Response) => {
 });
 
 // Global Error Handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('❌ Error:', err);
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+  Logger.error('Unhandled error', {
+    error: err.message,
+    stack: err.stack,
+    method: req.method,
+    url: req.originalUrl,
+    ip: req.ip,
+  });
 
   // Don't leak error details in production
   const message = env.NODE_ENV === 'production'
@@ -78,26 +89,27 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 const PORT = env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
-  console.log('🚀 Pulse Tronic Backend API');
-  console.log(`📡 Server running on port ${PORT}`);
-  console.log(`🌍 Environment: ${env.NODE_ENV}`);
-  console.log(`🔗 API URL: ${env.API_URL}`);
-  console.log(`✅ Health check: ${env.API_URL}/health`);
+  Logger.info('🚀 Pulse Tronic Backend API Started', {
+    port: PORT,
+    environment: env.NODE_ENV,
+    apiUrl: env.API_URL,
+    healthCheck: `${env.API_URL}/health`,
+  });
 });
 
 // Graceful Shutdown
 process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM signal received: closing HTTP server');
+  Logger.warn('SIGTERM signal received: closing HTTP server');
   server.close(() => {
-    console.log('🔒 HTTP server closed');
+    Logger.info('HTTP server closed gracefully');
     process.exit(0);
   });
 });
 
 process.on('SIGINT', () => {
-  console.log('👋 SIGINT signal received: closing HTTP server');
+  Logger.warn('SIGINT signal received: closing HTTP server');
   server.close(() => {
-    console.log('🔒 HTTP server closed');
+    Logger.info('HTTP server closed gracefully');
     process.exit(0);
   });
 });
