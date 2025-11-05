@@ -1,7 +1,7 @@
 # ✅ Progresso do Desenvolvimento - Pulse Tronic
 
-**Última Atualização:** 06/11/2025 - 03:00
-**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (55%)
+**Última Atualização:** 06/11/2025 - 04:00
+**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (60%)
 
 ---
 
@@ -11,7 +11,7 @@
 |------|--------|-----------|----------------|
 | Fase 1 - Backend Core | ✅ Completo | 100% | ✅ Concluída |
 | Fase 2 - Integrações | ✅ Completo | 100% | ✅ Concluída |
-| Fase 3 - Admin Panel | 🟡 Em Progresso | 55% | 3-4 semanas |
+| Fase 3 - Admin Panel | 🟡 Em Progresso | 60% | 3-4 semanas |
 | Fase 4 - Features Avançadas | ⚪ Pendente | 0% | 4-5 semanas |
 | Fase 5 - Otimizações | ⚪ Pendente | 0% | 2-3 semanas |
 
@@ -303,11 +303,11 @@
 
 ---
 
-## 🎯 Fase 3 - Painel Administrativo (55% Em Andamento)
+## 🎯 Fase 3 - Painel Administrativo (60% Em Andamento)
 
 **Objetivo:** Criar interface de gerenciamento completa para a equipe
 
-**Status Atual:** Setup completo, autenticação OK, Dashboard, Quotes, Contacts e Notificações implementados
+**Status Atual:** Setup completo, autenticação OK, Dashboard, Quotes (com ações), Contacts e Notificações implementados
 
 ### 3.1 Setup do Admin Panel (✅ 100% COMPLETO)
 
@@ -405,7 +405,7 @@
 - ✅ 7 métricas em tempo real
 - ✅ Logger integrado
 
-### 3.4 Gerenciamento de Orçamentos (✅ 60% COMPLETO)
+### 3.4 Gerenciamento de Orçamentos (✅ 80% COMPLETO)
 
 **Concluído:**
 
@@ -435,9 +435,23 @@
 - ✅ Logger integrado em todos os métodos do QuoteController
 - ✅ quoteService.updateStatus() criado no frontend
 
+**UI Enhancements:**
+
+- ✅ Dropdown de ações com MoreVertical icon
+- ✅ Opções de mudança de status (6 opções)
+- ✅ Toast notifications (sucesso/erro)
+- ✅ Cache invalidation automática (quotes + dashboard)
+- ✅ Opções condicionais (não mostra status atual)
+- ✅ Emojis para visual feedback
+- ✅ DropdownMenu component (Radix UI)
+
+**Arquivos Criados:**
+
+- `admin/src/components/ui/dropdown-menu.tsx` (Radix UI wrapper)
+- `admin/package.json` (dep: @radix-ui/react-dropdown-menu)
+
 **Pendente:**
 
-- [ ] UI: Dropdown de ações para mudar status
 - [ ] Modal de detalhes do orçamento
 - [ ] Filtros avançados (por status, data range)
 - [ ] Export CSV/PDF

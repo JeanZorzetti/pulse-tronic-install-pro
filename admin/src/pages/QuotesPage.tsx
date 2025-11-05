@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, Filter, Eye, Trash2, FileText } from 'lucide-react';
+import { Search, Filter, Eye, Trash2, FileText, MoreVertical } from 'lucide-react';
+import { toast } from 'sonner';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,33 +17,40 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { quoteService } from '@/services/quote.service';
-import type { QuoteStatus } from '@/types';
+import type { Quote, QuoteStatus } from '@/types';
 
 const statusColors: Record<QuoteStatus, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  IN_ANALYSIS: 'bg-blue-100 text-blue-800 border-blue-200',
+  NEW: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  ANALYZING: 'bg-blue-100 text-blue-800 border-blue-200',
   QUOTE_SENT: 'bg-purple-100 text-purple-800 border-purple-200',
   APPROVED: 'bg-green-100 text-green-800 border-green-200',
   REJECTED: 'bg-red-100 text-red-800 border-red-200',
   COMPLETED: 'bg-gray-100 text-gray-800 border-gray-200',
-  CANCELLED: 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
 const statusLabels: Record<QuoteStatus, string> = {
-  PENDING: 'Pendente',
-  IN_ANALYSIS: 'Em Análise',
+  NEW: 'Novo',
+  ANALYZING: 'Em Análise',
   QUOTE_SENT: 'Orçamento Enviado',
   APPROVED: 'Aprovado',
   REJECTED: 'Rejeitado',
   COMPLETED: 'Concluído',
-  CANCELLED: 'Cancelado',
 };
 
 export default function QuotesPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const take = 10;
+  const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['quotes', page, search],
@@ -52,6 +60,23 @@ export default function QuotesPage() {
         take,
       }),
   });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: QuoteStatus }) =>
+      quoteService.updateStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      toast.success('Status atualizado com sucesso');
+    },
+    onError: () => {
+      toast.error('Erro ao atualizar status');
+    },
+  });
+
+  const handleStatusChange = (quote: Quote, newStatus: QuoteStatus) => {
+    updateStatusMutation.mutate({ id: quote.id, status: newStatus });
+  };
 
   const filteredQuotes = data?.data.filter((quote) => {
     if (!search) return true;
@@ -173,14 +198,56 @@ export default function QuotesPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Mudar Status</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              {quote.status !== 'NEW' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'NEW')}>
+                                  🆕 Novo
+                                </DropdownMenuItem>
+                              )}
+                              {quote.status !== 'ANALYZING' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'ANALYZING')}>
+                                  🔍 Em Análise
+                                </DropdownMenuItem>
+                              )}
+                              {quote.status !== 'QUOTE_SENT' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'QUOTE_SENT')}>
+                                  📧 Orçamento Enviado
+                                </DropdownMenuItem>
+                              )}
+                              {quote.status !== 'APPROVED' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'APPROVED')}>
+                                  ✅ Aprovado
+                                </DropdownMenuItem>
+                              )}
+                              {quote.status !== 'REJECTED' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'REJECTED')}>
+                                  ❌ Rejeitado
+                                </DropdownMenuItem>
+                              )}
+                              {quote.status !== 'COMPLETED' && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'COMPLETED')}>
+                                  🎉 Concluído
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver Detalhes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
