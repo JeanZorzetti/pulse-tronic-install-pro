@@ -428,10 +428,17 @@
 - `admin/src/components/ui/table.tsx`
 - `admin/src/components/ui/input.tsx`
 
+**Backend Enhancements:**
+
+- ✅ PATCH /api/admin/quotes/:id/status implementado
+- ✅ QuoteController.updateStatusAdmin() criado
+- ✅ Logger integrado em todos os métodos do QuoteController
+- ✅ quoteService.updateStatus() criado no frontend
+
 **Pendente:**
 
+- [ ] UI: Dropdown de ações para mudar status
 - [ ] Modal de detalhes do orçamento
-- [ ] Ações de atualizar status
 - [ ] Filtros avançados (por status, data range)
 - [ ] Export CSV/PDF
 
