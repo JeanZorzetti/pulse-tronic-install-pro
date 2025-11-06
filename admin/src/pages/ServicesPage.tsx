@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import ServiceFormModal, { ServiceFormData } from '@/components/ServiceFormModal';
 import { serviceService } from '@/services/service.service';
 import type { Service, ServiceCategory } from '@/types';
 
@@ -46,6 +47,8 @@ const categoryColors: Record<ServiceCategory, string> = {
 export default function ServicesPage() {
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: services, isLoading } = useQuery({
@@ -61,6 +64,35 @@ export default function ServicesPage() {
     },
     onError: () => {
       toast.error('Erro ao atualizar status do serviço');
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: ServiceFormData) => serviceService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+      setIsFormOpen(false);
+      setServiceToEdit(null);
+      toast.success('Serviço criado com sucesso');
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Erro ao criar serviço';
+      toast.error(message);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ServiceFormData }) =>
+      serviceService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+      setIsFormOpen(false);
+      setServiceToEdit(null);
+      toast.success('Serviço atualizado com sucesso');
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Erro ao atualizar serviço';
+      toast.error(message);
     },
   });
 
@@ -98,6 +130,29 @@ export default function ServicesPage() {
     setServiceToDelete(null);
   };
 
+  const handleNewService = () => {
+    setServiceToEdit(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditService = (service: Service) => {
+    setServiceToEdit(service);
+    setIsFormOpen(true);
+  };
+
+  const handleFormSubmit = (data: ServiceFormData) => {
+    if (serviceToEdit) {
+      updateMutation.mutate({ id: serviceToEdit.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  const handleFormClose = () => {
+    setIsFormOpen(false);
+    setServiceToEdit(null);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -112,7 +167,7 @@ export default function ServicesPage() {
               Gerencie os serviços oferecidos pela empresa
             </p>
           </div>
-          <Button>
+          <Button onClick={handleNewService}>
             <Plus className="h-4 w-4 mr-2" />
             Novo Serviço
           </Button>
@@ -182,7 +237,7 @@ export default function ServicesPage() {
                 <p className="text-sm text-muted-foreground">
                   Nenhum serviço cadastrado ainda.
                 </p>
-                <Button className="mt-4">
+                <Button className="mt-4" onClick={handleNewService}>
                   <Plus className="h-4 w-4 mr-2" />
                   Criar Primeiro Serviço
                 </Button>
@@ -259,6 +314,7 @@ export default function ServicesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleEditService(service)}
                             title="Editar"
                           >
                             <Edit className="h-4 w-4" />
@@ -300,6 +356,14 @@ export default function ServicesPage() {
           </CardContent>
         </Card>
       </div>
+
+      <ServiceFormModal
+        open={isFormOpen}
+        onClose={handleFormClose}
+        onSubmit={handleFormSubmit}
+        service={serviceToEdit}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+      />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
