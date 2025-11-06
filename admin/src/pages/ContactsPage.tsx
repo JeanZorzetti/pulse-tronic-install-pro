@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Mail, Phone, Search, Trash2, CheckCircle2, Clock, MessageSquare } from 'lucide-react';
+import { Mail, Phone, Search, Trash2, CheckCircle2, Clock, MessageSquare, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import ContactDetailsModal from '@/components/ContactDetailsModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { contactService } from '@/services/contact.service';
 import type { Contact } from '@/types';
 import { ContactStatus } from '@/types';
@@ -31,6 +42,10 @@ export default function ContactsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContactStatus | ''>('');
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -61,6 +76,9 @@ export default function ContactsPage() {
     mutationFn: (id: string) => contactService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setIsDeleteDialogOpen(false);
+      setContactToDelete(null);
       toast.success('Contato removido com sucesso');
     },
     onError: () => {
@@ -72,10 +90,30 @@ export default function ContactsPage() {
     updateStatusMutation.mutate({ id: contact.id, status: newStatus });
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Tem certeza que deseja remover este contato?')) {
-      deleteMutation.mutate(id);
+  const handleViewDetails = (contact: Contact) => {
+    setSelectedContact(contact);
+    setIsDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailsOpen(false);
+    setSelectedContact(null);
+  };
+
+  const handleDeleteClick = (contact: Contact) => {
+    setContactToDelete(contact);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (contactToDelete) {
+      deleteMutation.mutate(contactToDelete.id);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setContactToDelete(null);
   };
 
   const contacts = data?.data || [];
@@ -230,6 +268,14 @@ export default function ContactsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewDetails(contact)}
+                            title="Ver Detalhes"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           {contact.status === ContactStatus.NEW && (
                             <Button
                               variant="ghost"
@@ -253,7 +299,7 @@ export default function ContactsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(contact.id)}
+                            onClick={() => handleDeleteClick(contact)}
                             title="Remover"
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
@@ -295,6 +341,33 @@ export default function ContactsPage() {
           )}
         </div>
       </div>
+
+      <ContactDetailsModal
+        contact={selectedContact}
+        open={isDetailsOpen}
+        onClose={handleCloseDetails}
+      />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a mensagem de{' '}
+              <strong>{contactToDelete?.name}</strong>? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
