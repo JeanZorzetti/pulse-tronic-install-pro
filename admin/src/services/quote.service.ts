@@ -6,6 +6,9 @@ export const quoteService = {
     skip?: number;
     take?: number;
     status?: string;
+    search?: string;
+    dateFrom?: string;
+    dateTo?: string;
   }): Promise<PaginatedResponse<Quote>> {
     const response = await api.get<ApiResponse<PaginatedResponse<Quote>>>('/admin/quotes', {
       params,

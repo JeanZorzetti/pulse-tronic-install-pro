@@ -96,11 +96,32 @@ export class QuoteController {
   // Get all quotes (Admin)
   static async getAllAdmin(req: Request, res: Response) {
     try {
-      const { page = 1, limit = 20, status, serviceId } = req.query;
+      const { page = 1, limit = 20, status, serviceId, search, dateFrom, dateTo } = req.query;
 
       const where: any = {};
       if (status) where.status = status;
       if (serviceId) where.serviceId = serviceId;
+
+      // Search filter
+      if (search) {
+        where.OR = [
+          { customer: { name: { contains: search as string, mode: 'insensitive' } } },
+          { customer: { email: { contains: search as string, mode: 'insensitive' } } },
+          { equipment: { contains: search as string, mode: 'insensitive' } },
+          { vehicle: { contains: search as string, mode: 'insensitive' } },
+        ];
+      }
+
+      // Date range filter
+      if (dateFrom || dateTo) {
+        where.createdAt = {};
+        if (dateFrom) where.createdAt.gte = new Date(dateFrom as string);
+        if (dateTo) {
+          const endDate = new Date(dateTo as string);
+          endDate.setHours(23, 59, 59, 999);
+          where.createdAt.lte = endDate;
+        }
+      }
 
       const skip = (Number(page) - 1) * Number(limit);
 

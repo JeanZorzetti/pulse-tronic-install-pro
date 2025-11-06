@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, Filter, Eye, Trash2, FileText, MoreVertical } from 'lucide-react';
+import { Search, Filter, Eye, Trash2, FileText, MoreVertical, X, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +25,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,15 +70,23 @@ export default function QuotesPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [quoteToDelete, setQuoteToDelete] = useState<Quote | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<QuoteStatus | ''>('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const take = 10;
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['quotes', page, search],
+    queryKey: ['quotes', page, search, statusFilter, dateFrom, dateTo],
     queryFn: () =>
       quoteService.getAll({
         skip: page * take,
         take,
+        search: search || undefined,
+        status: statusFilter || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
       }),
   });
 
@@ -134,17 +147,21 @@ export default function QuotesPage() {
     setQuoteToDelete(null);
   };
 
-  const filteredQuotes = data?.data.filter((quote) => {
-    if (!search) return true;
-    const searchLower = search.toLowerCase();
-    return (
-      quote.customer.name.toLowerCase().includes(searchLower) ||
-      quote.customer.email.toLowerCase().includes(searchLower) ||
-      quote.equipmentBrand.toLowerCase().includes(searchLower) ||
-      quote.equipmentModel.toLowerCase().includes(searchLower)
-    );
-  });
+  const handleClearFilters = () => {
+    setStatusFilter('');
+    setDateFrom('');
+    setDateTo('');
+    setPage(0);
+  };
 
+  const handleApplyFilters = () => {
+    setPage(0);
+    setIsFilterOpen(false);
+  };
+
+  const hasActiveFilters = statusFilter !== '' || dateFrom !== '' || dateTo !== '';
+
+  const quotes = data?.data || [];
   const totalPages = data ? Math.ceil(data.total / take) : 0;
 
   return (
@@ -181,10 +198,100 @@ export default function QuotesPage() {
                   />
                 </div>
               </div>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Mais Filtros
-              </Button>
+              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Mais Filtros
+                    {hasActiveFilters && (
+                      <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                        {[statusFilter, dateFrom, dateTo].filter(Boolean).length}
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Filtros Avançados</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Refine sua busca por status e período
+                      </p>
+                    </div>
+
+                    {/* Status Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Status</label>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value as QuoteStatus | '')}
+                        className="w-full px-3 py-2 border rounded-md bg-background text-sm"
+                      >
+                        <option value="">Todos os status</option>
+                        <option value={QuoteStatus.NEW}>Novo</option>
+                        <option value={QuoteStatus.ANALYZING}>Em Análise</option>
+                        <option value={QuoteStatus.QUOTE_SENT}>Orçamento Enviado</option>
+                        <option value={QuoteStatus.APPROVED}>Aprovado</option>
+                        <option value={QuoteStatus.REJECTED}>Rejeitado</option>
+                        <option value={QuoteStatus.COMPLETED}>Concluído</option>
+                      </select>
+                    </div>
+
+                    {/* Date Range */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Período</label>
+                      <div className="grid gap-2">
+                        <div className="space-y-1">
+                          <label className="text-xs text-muted-foreground">Data inicial</label>
+                          <div className="relative">
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="date"
+                              value={dateFrom}
+                              onChange={(e) => setDateFrom(e.target.value)}
+                              className="pl-9"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-muted-foreground">Data final</label>
+                          <div className="relative">
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="date"
+                              value={dateTo}
+                              onChange={(e) => setDateTo(e.target.value)}
+                              className="pl-9"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearFilters}
+                        className="flex-1"
+                        disabled={!hasActiveFilters}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Limpar
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleApplyFilters}
+                        className="flex-1"
+                      >
+                        <Filter className="h-4 w-4 mr-2" />
+                        Aplicar
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </CardContent>
         </Card>
@@ -203,7 +310,7 @@ export default function QuotesPage() {
                   Erro ao carregar orçamentos. Tente novamente.
                 </p>
               </div>
-            ) : filteredQuotes && filteredQuotes.length > 0 ? (
+            ) : quotes && quotes.length > 0 ? (
               <>
                 <Table>
                   <TableHeader>
@@ -217,7 +324,7 @@ export default function QuotesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredQuotes.map((quote) => (
+                    {quotes.map((quote) => (
                       <TableRow key={quote.id}>
                         <TableCell className="font-medium">
                           {format(new Date(quote.createdAt), "dd/MM/yyyy 'às' HH:mm", {

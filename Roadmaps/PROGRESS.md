@@ -430,7 +430,7 @@
 - ✅ Remover imports não utilizados
 - ✅ Build bem sucedido sem erros
 
-### 3.4 Gerenciamento de Orçamentos (✅ 95% COMPLETO)
+### 3.4 Gerenciamento de Orçamentos (✅ 98% COMPLETO)
 
 **Concluído:**
 
@@ -521,9 +521,33 @@
 - `admin/src/components/ui/alert-dialog.tsx`
 - `admin/package.json` (dep: @radix-ui/react-alert-dialog)
 
+**Filtros Avançados (✅ COMPLETO):**
+
+- ✅ Popover de filtros avançados
+  - Status dropdown (6 opções)
+  - Date range picker (data inicial/final)
+  - Indicador visual de filtros ativos (badge com contador)
+  - Botões Limpar e Aplicar
+  - Integração com query parameters
+- ✅ Backend filtering implementado
+  - Search filter (nome, email, equipment, vehicle)
+  - Status filter
+  - Date range filter (createdAt gte/lte)
+  - Queries otimizadas com Prisma
+- ✅ Componentes UI
+  - Popover (Radix UI já existente)
+  - Calendar icon para date inputs
+  - Filter icon com badge de contador
+- ✅ Build bem sucedido sem erros
+
+**Arquivos Modificados:**
+
+- `admin/src/pages/QuotesPage.tsx` (filtros UI + lógica)
+- `admin/src/services/quote.service.ts` (params de filtro)
+- `Backend/src/controllers/quote.controller.ts` (lógica de filtro)
+
 **Pendente:**
 
-- [ ] Filtros avançados (por status, data range)
 - [ ] Export CSV/PDF
 
 ### 3.5 Gerenciamento de Contatos (✅ 80% COMPLETO)
