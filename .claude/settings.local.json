@@ -21,7 +21,8 @@
       "Bash(npx prisma migrate dev:*)",
       "Bash(echo:*)",
       "Bash(.env.temp)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(npx prisma format)"
     ],
     "deny": [],
     "ask": []

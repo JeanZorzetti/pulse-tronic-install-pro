@@ -4,6 +4,7 @@ import { QuoteController } from '../controllers/quote.controller';
 import { ContactController } from '../controllers/contact.controller';
 import { NotificationController } from '../controllers/notification.controller';
 import { DashboardController } from '../controllers/dashboard.controller';
+import { ServiceController } from '../controllers/service.controller';
 
 const router = Router();
 
@@ -145,5 +146,51 @@ router.patch('/notifications/mark-all-read', NotificationController.markAllAsRea
  * @access  Private (Admin/Manager)
  */
 router.delete('/notifications/:id', NotificationController.deleteNotification);
+
+/**
+ * Services Management (CMS)
+ */
+
+/**
+ * @route   GET /api/admin/services
+ * @desc    Get all services (including inactive)
+ * @access  Private (Admin/Manager)
+ */
+router.get('/services', ServiceController.getAllAdmin);
+
+/**
+ * @route   GET /api/admin/services/:id
+ * @desc    Get service by ID
+ * @access  Private (Admin/Manager)
+ */
+router.get('/services/:id', ServiceController.getByIdAdmin);
+
+/**
+ * @route   POST /api/admin/services
+ * @desc    Create new service
+ * @access  Private (Admin/Manager)
+ */
+router.post('/services', ServiceController.createAdmin);
+
+/**
+ * @route   PUT /api/admin/services/:id
+ * @desc    Update service
+ * @access  Private (Admin/Manager)
+ */
+router.put('/services/:id', ServiceController.updateAdmin);
+
+/**
+ * @route   DELETE /api/admin/services/:id
+ * @desc    Delete service
+ * @access  Private (Admin/Manager)
+ */
+router.delete('/services/:id', ServiceController.deleteAdmin);
+
+/**
+ * @route   PATCH /api/admin/services/:id/toggle-active
+ * @desc    Toggle service active status
+ * @access  Private (Admin/Manager)
+ */
+router.patch('/services/:id/toggle-active', ServiceController.toggleActiveAdmin);
 
 export default router;

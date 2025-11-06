@@ -90,14 +90,19 @@ export enum ContactStatus {
 // Service Types
 export interface Service {
   id: string;
-  name: string;
+  title: string;
   slug: string;
   description: string;
   category: ServiceCategory;
-  basePrice?: number;
-  estimatedDuration?: number;
+  estimatedTime?: number; // in minutes
   isActive: boolean;
+  displayOrder: number;
+  metaTitle?: string;
+  metaDescription?: string;
   items: ServiceItem[];
+  _count?: {
+    quotes: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -105,18 +110,16 @@ export interface Service {
 export interface ServiceItem {
   id: string;
   serviceId: string;
-  name: string;
-  description?: string;
+  item: string;
   displayOrder: number;
 }
 
 export enum ServiceCategory {
   MULTIMEDIA = 'MULTIMEDIA',
-  SOUND_SYSTEM = 'SOUND_SYSTEM',
-  CAMERAS = 'CAMERAS',
+  SOUND = 'SOUND',
+  CAMERA = 'CAMERA',
   SECURITY = 'SECURITY',
   ACCESSORIES = 'ACCESSORIES',
-  OTHER = 'OTHER',
 }
 
 // Notification Types
