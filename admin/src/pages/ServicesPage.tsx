@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import ServiceFormModal, { ServiceFormData } from '@/components/ServiceFormModal';
 import { serviceService } from '@/services/service.service';
+import { ServiceDetailsModal } from '@/components/ServiceDetailsModal';
 import type { Service, ServiceCategory } from '@/types';
 
 const categoryLabels: Record<ServiceCategory, string> = {
@@ -49,6 +50,8 @@ export default function ServicesPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [serviceToView, setServiceToView] = useState<Service | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: services, isLoading } = useQuery({
@@ -109,6 +112,16 @@ export default function ServicesPage() {
       toast.error(message);
     },
   });
+
+  const handleViewDetails = (service: Service) => {
+    setServiceToView(service);
+    setIsDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailsOpen(false);
+    setServiceToView(null);
+  };
 
   const handleToggleActive = (service: Service) => {
     toggleActiveMutation.mutate(service.id);
@@ -307,6 +320,7 @@ export default function ServicesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleViewDetails(service)}
                             title="Ver Detalhes"
                           >
                             <Eye className="h-4 w-4" />
@@ -363,6 +377,12 @@ export default function ServicesPage() {
         onSubmit={handleFormSubmit}
         service={serviceToEdit}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ServiceDetailsModal
+        service={serviceToView}
+        isOpen={isDetailsOpen}
+        onClose={handleCloseDetails}
       />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

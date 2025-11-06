@@ -22,7 +22,13 @@
       "Bash(echo:*)",
       "Bash(.env.temp)",
       "Bash(git reset:*)",
-      "Bash(npx prisma format)"
+      "Bash(npx prisma format)",
+      "Bash(timeout:*)",
+      "Bash(cat:*)",
+      "Bash(modal.txt)",
+      "Bash(temp.txt)",
+      "Bash(python -c:*)",
+      "Bash(powershell -Command \"(Get-Content PROGRESS.md -Raw -Encoding UTF8) -replace ''60% Em Andamento'', ''73% Em Andamento'' -replace ''Quotes \\(com ações\\), Contacts e Notificações implementados'', ''Quotes (com ações), Contacts, Notificações e CMS de Serviços implementados'' | Set-Content PROGRESS.md -Encoding UTF8\")"
     ],
     "deny": [],
     "ask": []
