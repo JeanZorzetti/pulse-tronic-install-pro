@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { FileText, MessageSquare, Bell, TrendingUp } from 'lucide-react';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { dashboardService } from '@/services/dashboard.service';
@@ -11,6 +12,12 @@ export default function DashboardPage() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: () => dashboardService.getStats(),
+    retry: false,
+  });
+
+  const { data: charts, isLoading: isLoadingCharts } = useQuery({
+    queryKey: ['dashboard-charts'],
+    queryFn: () => dashboardService.getCharts(),
     retry: false,
   });
 
@@ -59,6 +66,37 @@ export default function DashboardPage() {
     },
   ];
 
+  // Status labels and colors for chart
+  const statusLabels: Record<string, string> = {
+    NEW: 'Novo',
+    ANALYZING: 'Em Análise',
+    QUOTE_SENT: 'Orçamento Enviado',
+    APPROVED: 'Aprovado',
+    REJECTED: 'Rejeitado',
+    COMPLETED: 'Concluído',
+  };
+
+  const statusColors: Record<string, string> = {
+    NEW: '#fbbf24',
+    ANALYZING: '#3b82f6',
+    QUOTE_SENT: '#a855f7',
+    APPROVED: '#22c55e',
+    REJECTED: '#ef4444',
+    COMPLETED: '#6b7280',
+  };
+
+  // Format chart data
+  const statusChartData = charts?.statusData.map((item) => ({
+    name: statusLabels[item.status] || item.status,
+    value: item.count,
+    color: statusColors[item.status] || '#6b7280',
+  })) || [];
+
+  const timelineChartData = charts?.timelineData.map((item) => ({
+    date: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+    count: item.count,
+  })) || [];
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -99,6 +137,87 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Charts */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Orçamentos por Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingCharts ? (
+                <div className="h-[300px] flex items-center justify-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : statusChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={statusChartData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
+                    />
+                    <Bar dataKey="value" name="Quantidade">
+                      {statusChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-sm text-muted-foreground">
+                  Nenhum dado disponível
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Orçamentos dos Últimos 7 Dias</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingCharts ? (
+                <div className="h-[300px] flex items-center justify-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : timelineChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={timelineChartData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="date" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      name="Orçamentos"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                      dot={{ fill: '#3b82f6', r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-sm text-muted-foreground">
+                  Nenhum dado disponível
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions */}

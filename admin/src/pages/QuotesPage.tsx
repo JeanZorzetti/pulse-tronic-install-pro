@@ -26,7 +26,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { quoteService } from '@/services/quote.service';
-import type { Quote, QuoteStatus } from '@/types';
+import type { Quote } from '@/types';
+import { QuoteStatus } from '@/types';
 
 const statusColors: Record<QuoteStatus, string> = {
   NEW: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -207,33 +208,33 @@ export default function QuotesPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Mudar Status</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              {quote.status !== 'NEW' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'NEW')}>
+                              {quote.status !== QuoteStatus.NEW && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, QuoteStatus.NEW)}>
                                   🆕 Novo
                                 </DropdownMenuItem>
                               )}
-                              {quote.status !== 'ANALYZING' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'ANALYZING')}>
+                              {quote.status !== QuoteStatus.ANALYZING && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, QuoteStatus.ANALYZING)}>
                                   🔍 Em Análise
                                 </DropdownMenuItem>
                               )}
-                              {quote.status !== 'QUOTE_SENT' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'QUOTE_SENT')}>
+                              {quote.status !== QuoteStatus.QUOTE_SENT && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, QuoteStatus.QUOTE_SENT)}>
                                   📧 Orçamento Enviado
                                 </DropdownMenuItem>
                               )}
-                              {quote.status !== 'APPROVED' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'APPROVED')}>
+                              {quote.status !== QuoteStatus.APPROVED && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, QuoteStatus.APPROVED)}>
                                   ✅ Aprovado
                                 </DropdownMenuItem>
                               )}
-                              {quote.status !== 'REJECTED' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'REJECTED')}>
+                              {quote.status !== QuoteStatus.REJECTED && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, QuoteStatus.REJECTED)}>
                                   ❌ Rejeitado
                                 </DropdownMenuItem>
                               )}
-                              {quote.status !== 'COMPLETED' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(quote, 'COMPLETED')}>
+                              {quote.status !== QuoteStatus.COMPLETED && (
+                                <DropdownMenuItem onClick={() => handleStatusChange(quote, QuoteStatus.COMPLETED)}>
                                   🎉 Concluído
                                 </DropdownMenuItem>
                               )}
@@ -255,7 +256,7 @@ export default function QuotesPage() {
                 </Table>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
+                {totalPages > 1 && data && (
                   <div className="flex items-center justify-between border-t p-4">
                     <div className="text-sm text-muted-foreground">
                       Mostrando {page * take + 1} a {Math.min((page + 1) * take, data.total)} de{' '}

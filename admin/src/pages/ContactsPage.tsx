@@ -17,12 +17,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { contactService } from '@/services/contact.service';
-import type { Contact, ContactStatus } from '@/types';
+import type { Contact } from '@/types';
+import { ContactStatus } from '@/types';
 
-const statusConfig: Record<ContactStatus, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' }> = {
+const statusConfig: Record<ContactStatus, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   NEW: { label: 'Nova', variant: 'default' },
   READ: { label: 'Lida', variant: 'secondary' },
-  REPLIED: { label: 'Respondida', variant: 'success' },
+  REPLIED: { label: 'Respondida', variant: 'outline' },
+  CLOSED: { label: 'Fechada', variant: 'destructive' },
 };
 
 export default function ContactsPage() {
@@ -142,7 +144,7 @@ export default function ContactsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Lidas</p>
                 <p className="text-2xl font-bold">
-                  {contacts.filter((c) => c.status === 'READ').length}
+                  {contacts.filter((c) => c.status === ContactStatus.READ).length}
                 </p>
               </div>
             </div>
@@ -155,7 +157,7 @@ export default function ContactsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Respondidas</p>
                 <p className="text-2xl font-bold">
-                  {contacts.filter((c) => c.status === 'REPLIED').length}
+                  {contacts.filter((c) => c.status === ContactStatus.REPLIED).length}
                 </p>
               </div>
             </div>
@@ -197,9 +199,6 @@ export default function ContactsPage() {
                       <TableCell>
                         <div>
                           <p className="font-medium">{contact.name}</p>
-                          {contact.company && (
-                            <p className="text-xs text-muted-foreground">{contact.company}</p>
-                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -231,21 +230,21 @@ export default function ContactsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
-                          {contact.status === 'NEW' && (
+                          {contact.status === ContactStatus.NEW && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleStatusChange(contact, 'READ')}
+                              onClick={() => handleStatusChange(contact, ContactStatus.READ)}
                               title="Marcar como lida"
                             >
                               <MessageSquare className="h-4 w-4" />
                             </Button>
                           )}
-                          {contact.status === 'READ' && (
+                          {contact.status === ContactStatus.READ && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleStatusChange(contact, 'REPLIED')}
+                              onClick={() => handleStatusChange(contact, ContactStatus.REPLIED)}
                               title="Marcar como respondida"
                             >
                               <CheckCircle2 className="h-4 w-4" />

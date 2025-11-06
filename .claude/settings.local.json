@@ -16,7 +16,12 @@
       "Bash(git mv:*)",
       "Bash(git ls-tree:*)",
       "Bash(npm install:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(echo:*)",
+      "Bash(.env.temp)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,4 +1,4 @@
-import axios from '@/lib/axios';
+import { api } from '@/lib/axios';
 import type { Contact, ContactStatus, ApiResponse, PaginatedResponse } from '@/types';
 
 interface GetContactsParams {
@@ -25,19 +25,19 @@ class ContactService {
     if (search) queryParams.append('search', search);
     if (status) queryParams.append('status', status);
 
-    const response = await axios.get<ApiResponse<PaginatedResponse<Contact>>>(
+    const response = await api.get<ApiResponse<PaginatedResponse<Contact>>>(
       `${this.baseUrl}?${queryParams.toString()}`
     );
     return response.data.data;
   }
 
   async getById(id: string): Promise<Contact> {
-    const response = await axios.get<ApiResponse<Contact>>(`${this.baseUrl}/${id}`);
+    const response = await api.get<ApiResponse<Contact>>(`${this.baseUrl}/${id}`);
     return response.data.data;
   }
 
   async updateStatus(id: string, payload: UpdateContactStatusPayload): Promise<Contact> {
-    const response = await axios.patch<ApiResponse<Contact>>(
+    const response = await api.patch<ApiResponse<Contact>>(
       `${this.baseUrl}/${id}/status`,
       payload
     );
@@ -45,7 +45,7 @@ class ContactService {
   }
 
   async delete(id: string): Promise<void> {
-    await axios.delete(`${this.baseUrl}/${id}`);
+    await api.delete(`${this.baseUrl}/${id}`);
   }
 }
 

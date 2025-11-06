@@ -48,13 +48,12 @@ export interface Quote {
 }
 
 export enum QuoteStatus {
-  PENDING = 'PENDING',
-  IN_ANALYSIS = 'IN_ANALYSIS',
+  NEW = 'NEW',
+  ANALYZING = 'ANALYZING',
   QUOTE_SENT = 'QUOTE_SENT',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
   COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
 }
 
 // Customer Types
@@ -83,8 +82,8 @@ export interface Contact {
 
 export enum ContactStatus {
   NEW = 'NEW',
-  IN_PROGRESS = 'IN_PROGRESS',
-  RESPONDED = 'RESPONDED',
+  READ = 'READ',
+  REPLIED = 'REPLIED',
   CLOSED = 'CLOSED',
 }
 

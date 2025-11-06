@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Bell, Check, CheckCheck, Trash2, FileText, MessageSquare, Calendar } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, FileText, MessageSquare, Calendar } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -72,7 +72,7 @@ export default function NotificationsDropdown() {
   };
 
   const unreadCount = unreadData?.unreadCount || 0;
-  const notifications = notificationsData?.notifications || [];
+  const notifications = notificationsData?.data || [];
 
   return (
     <Popover>
@@ -116,8 +116,8 @@ export default function NotificationsDropdown() {
               <p className="text-sm text-muted-foreground">Nenhuma notificação</p>
             </div>
           ) : (
-            notifications.map((notification) => {
-              const Icon = notificationIcons[notification.type];
+            notifications.map((notification: Notification) => {
+              const Icon = notificationIcons[notification.type] || FileText;
               return (
                 <div
                   key={notification.id}
