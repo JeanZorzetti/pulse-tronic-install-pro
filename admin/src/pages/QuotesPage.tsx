@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import QuoteDetailsModal from '@/components/QuoteDetailsModal';
 import { quoteService } from '@/services/quote.service';
 import type { Quote } from '@/types';
 import { QuoteStatus } from '@/types';
@@ -50,6 +51,8 @@ const statusLabels: Record<QuoteStatus, string> = {
 export default function QuotesPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const take = 10;
   const queryClient = useQueryClient();
 
@@ -77,6 +80,16 @@ export default function QuotesPage() {
 
   const handleStatusChange = (quote: Quote, newStatus: QuoteStatus) => {
     updateStatusMutation.mutate({ id: quote.id, status: newStatus });
+  };
+
+  const handleViewDetails = (quote: Quote) => {
+    setSelectedQuote(quote);
+    setIsDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailsOpen(false);
+    setSelectedQuote(null);
   };
 
   const filteredQuotes = data?.data.filter((quote) => {
@@ -239,7 +252,7 @@ export default function QuotesPage() {
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleViewDetails(quote)}>
                                 <Eye className="h-4 w-4 mr-2" />
                                 Ver Detalhes
                               </DropdownMenuItem>
@@ -297,6 +310,12 @@ export default function QuotesPage() {
           </CardContent>
         </Card>
       </div>
+
+      <QuoteDetailsModal
+        quote={selectedQuote}
+        open={isDetailsOpen}
+        onClose={handleCloseDetails}
+      />
     </DashboardLayout>
   );
 }
