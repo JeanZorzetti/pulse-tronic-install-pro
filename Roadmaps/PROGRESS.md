@@ -1,7 +1,7 @@
 # ✅ Progresso do Desenvolvimento - Pulse Tronic
 
-**Última Atualização:** 06/11/2025 - 05:30
-**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (65%)
+**Última Atualização:** 06/11/2025 - 06:15
+**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (68%)
 
 ---
 
@@ -11,7 +11,7 @@
 |------|--------|-----------|----------------|
 | Fase 1 - Backend Core | ✅ Completo | 100% | ✅ Concluída |
 | Fase 2 - Integrações | ✅ Completo | 100% | ✅ Concluída |
-| Fase 3 - Admin Panel | 🟡 Em Progresso | 65% | 3-4 semanas |
+| Fase 3 - Admin Panel | 🟡 Em Progresso | 68% | 3-4 semanas |
 | Fase 4 - Features Avançadas | ⚪ Pendente | 0% | 4-5 semanas |
 | Fase 5 - Otimizações | ⚪ Pendente | 0% | 2-3 semanas |
 
@@ -430,7 +430,7 @@
 - ✅ Remover imports não utilizados
 - ✅ Build bem sucedido sem erros
 
-### 3.4 Gerenciamento de Orçamentos (✅ 80% COMPLETO)
+### 3.4 Gerenciamento de Orçamentos (✅ 90% COMPLETO)
 
 **Concluído:**
 
@@ -475,10 +475,35 @@
 - `admin/src/components/ui/dropdown-menu.tsx` (Radix UI wrapper)
 - `admin/package.json` (dep: @radix-ui/react-dropdown-menu)
 
+**Modal de Detalhes (✅ COMPLETO):**
+
+- ✅ Dialog component (Radix UI) criado
+  - Overlay com animações suaves
+  - DialogHeader, DialogFooter, DialogTitle
+  - Close button integrado
+  - Responsivo e acessível
+- ✅ QuoteDetailsModal component
+  - 6 seções organizadas (Cliente, Veículo, Equipamento, Estimativa, Responsável, Histórico)
+  - Badges de status coloridas
+  - Ícones lucide-react para visual feedback
+  - Formatação de valores (R$) e datas (pt-BR)
+  - Layout responsivo com grid
+  - Max-height com scroll automático
+- ✅ Integração no QuotesPage
+  - Botão "Ver Detalhes" abre modal
+  - Estado para quote selecionado
+  - Handlers de abertura/fechamento
+
+**Arquivos Adicionais:**
+
+- `admin/src/components/ui/dialog.tsx`
+- `admin/src/components/QuoteDetailsModal.tsx`
+- `admin/package.json` (dep: @radix-ui/react-dialog)
+
 **Pendente:**
 
-- [ ] Modal de detalhes do orçamento
 - [ ] Filtros avançados (por status, data range)
+- [ ] Funcionalidade de deletar orçamento
 - [ ] Export CSV/PDF
 
 ### 3.5 Gerenciamento de Contatos (✅ 80% COMPLETO)
