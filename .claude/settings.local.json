@@ -1,34 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(nul)",
-      "Bash(dir:*)",
-      "Bash(findstr:*)",
-      "Bash(mkdir:*)",
-      "Bash(npm init:*)",
-      "Bash(git init:*)",
-      "Bash(git config:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Implementação inicial do Backend API REST (Fase 1 - 60%)\n\n✨ Features Implementadas:\n\nBackend Core (API REST):\n- Setup completo do projeto com TypeScript + Express\n- Dockerfile multi-stage otimizado para produção\n- docker-compose.yml com PostgreSQL + Redis + Prisma Studio\n- Configuração de variáveis de ambiente com validação Zod\n- Sistema de segurança (Helmet, CORS, Rate Limiting)\n\nDatabase (Prisma ORM):\n- Schema completo com 11 models (User, Customer, Quote, Appointment, etc)\n- Seeds com dados iniciais (admin, serviços, FAQs, settings)\n- Migrations configuradas\n\nAPI Endpoints Públicos:\n- POST /api/quotes - Solicitar orçamento\n- POST /api/contacts - Formulário de contato\n- GET /api/services - Listar serviços\n- GET /api/services/:slug - Serviço individual\n- GET /api/faqs - Listar FAQs\n- GET /api/testimonials - Listar depoimentos\n- GET /health - Health check\n\nControllers (5 criados):\n- QuoteController - CRUD de orçamentos\n- ContactController - CRUD de contatos\n- ServiceController - Listar serviços\n- FAQController - Listar FAQs\n- TestimonialController - Listar depoimentos\n\nSistema de Email:\n- EmailService com Nodemailer\n- 4 templates HTML profissionais\n- Confirmações para cliente\n- Notificações para admin\n\nValidação e Segurança:\n- Validators com Zod (quote, contact)\n- Middleware de validação genérico\n- Error handling global\n- Response padronizada (ApiResponseUtil)\n\nDocumentação:\n- README.md completo do Backend\n- PROGRESS.md com status detalhado\n- Roadmap.md com planejamento completo\n\n📊 Estatísticas:\n- 26 arquivos criados\n- ~3000 linhas de código\n- 8 endpoints funcionais\n- 11 models do Prisma\n\n🚀 Próximos Passos:\n- Implementar autenticação JWT\n- Criar rotas admin protegidas\n- Integrar email service nos controllers\n- Deploy inicial no Easypanel\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git remote add:*)",
-      "Bash(git push:*)",
-      "Bash(git commit:*)",
-      "Bash(git mv:*)",
-      "Bash(git ls-tree:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run build:*)",
-      "Bash(npx tsc:*)",
-      "Bash(npx prisma migrate dev:*)",
-      "Bash(echo:*)",
-      "Bash(.env.temp)",
-      "Bash(git reset:*)",
-      "Bash(npx prisma format)",
-      "Bash(timeout:*)",
-      "Bash(cat:*)",
-      "Bash(modal.txt)",
-      "Bash(temp.txt)",
-      "Bash(python -c:*)",
-      "Bash(powershell -Command \"(Get-Content PROGRESS.md -Raw -Encoding UTF8) -replace ''60% Em Andamento'', ''73% Em Andamento'' -replace ''Quotes \\(com ações\\), Contacts e Notificações implementados'', ''Quotes (com ações), Contacts, Notificações e CMS de Serviços implementados'' | Set-Content PROGRESS.md -Encoding UTF8\")"
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []

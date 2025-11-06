@@ -70,6 +70,20 @@ router.put('/quotes/:id', QuoteController.updateAdmin);
 router.delete('/quotes/:id', QuoteController.deleteAdmin);
 
 /**
+ * @route   GET /api/admin/quotes/export/csv
+ * @desc    Export quotes to CSV
+ * @access  Private (Admin/Manager)
+ */
+router.get('/quotes/export/csv', QuoteController.exportCSVAdmin);
+
+/**
+ * @route   GET /api/admin/quotes/export/pdf
+ * @desc    Export quotes to PDF
+ * @access  Private (Admin/Manager)
+ */
+router.get('/quotes/export/pdf', QuoteController.exportPDFAdmin);
+
+/**
  * Contacts Management
  */
 

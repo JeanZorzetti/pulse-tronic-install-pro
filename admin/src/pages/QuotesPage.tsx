@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Search, Filter, Eye, Trash2, FileText, MoreVertical, X, Calendar } from 'lucide-react';
+import { Search, Filter, Eye, Trash2, FileText, MoreVertical, X, Calendar, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -159,6 +159,30 @@ export default function QuotesPage() {
     setIsFilterOpen(false);
   };
 
+  const handleExportCSV = () => {
+    const params = new URLSearchParams();
+    if (statusFilter) params.append('status', statusFilter);
+    if (search) params.append('search', search);
+    if (dateFrom) params.append('dateFrom', dateFrom);
+    if (dateTo) params.append('dateTo', dateTo);
+
+    const url = `${import.meta.env.VITE_API_URL}/api/admin/quotes/export/csv?${params.toString()}`;
+    window.open(url, '_blank');
+    toast.success('Exportando orçamentos para CSV...');
+  };
+
+  const handleExportPDF = () => {
+    const params = new URLSearchParams();
+    if (statusFilter) params.append('status', statusFilter);
+    if (search) params.append('search', search);
+    if (dateFrom) params.append('dateFrom', dateFrom);
+    if (dateTo) params.append('dateTo', dateTo);
+
+    const url = `${import.meta.env.VITE_API_URL}/api/admin/quotes/export/pdf?${params.toString()}`;
+    window.open(url, '_blank');
+    toast.success('Exportando orçamentos para PDF...');
+  };
+
   const hasActiveFilters = statusFilter !== '' || dateFrom !== '' || dateTo !== '';
 
   const quotes = data?.data || [];
@@ -292,6 +316,24 @@ export default function QuotesPage() {
                   </div>
                 </PopoverContent>
               </Popover>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                title="Exportar para CSV"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                title="Exportar para PDF"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                PDF
+              </Button>
             </div>
           </CardContent>
         </Card>

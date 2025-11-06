@@ -6,6 +6,7 @@ import { EmailService } from '../services/email.service';
 import { NotificationService } from '../services/notification.service';
 import { Logger } from '../services/logger.service';
 import { AuthRequest } from '../types';
+import { ExportService } from '../services/export.service';
 
 const prisma = new PrismaClient();
 const emailService = EmailService.getInstance();
@@ -338,6 +339,120 @@ export class QuoteController {
         userId: (req as AuthRequest).user?.userId,
       });
       return ApiResponseUtil.serverError(res, 'Erro ao excluir orçamento');
+    }
+  }
+
+  // Export quotes to CSV (Admin)
+  static async exportCSVAdmin(req: Request, res: Response): Promise<Response | void> {
+    try {
+      const { status, serviceId, search, dateFrom, dateTo } = req.query;
+
+      const where: any = {};
+      if (status) where.status = status;
+      if (serviceId) where.serviceId = serviceId;
+
+      // Search filter
+      if (search) {
+        where.OR = [
+          { customer: { name: { contains: search as string, mode: 'insensitive' } } },
+          { customer: { email: { contains: search as string, mode: 'insensitive' } } },
+          { equipment: { contains: search as string, mode: 'insensitive' } },
+          { vehicle: { contains: search as string, mode: 'insensitive' } },
+        ];
+      }
+
+      // Date range filter
+      if (dateFrom || dateTo) {
+        where.createdAt = {};
+        if (dateFrom) where.createdAt.gte = new Date(dateFrom as string);
+        if (dateTo) {
+          const endDate = new Date(dateTo as string);
+          endDate.setHours(23, 59, 59, 999);
+          where.createdAt.lte = endDate;
+        }
+      }
+
+      const quotes = await prisma.quote.findMany({
+        where,
+        include: {
+          customer: true,
+          service: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      Logger.info('Quotes exported to CSV', {
+        total: quotes.length,
+        filters: { status, serviceId, search, dateFrom, dateTo },
+        userId: (req as AuthRequest).user?.userId,
+      });
+
+      await ExportService.exportQuotesToCSV(quotes as any, res);
+    } catch (error) {
+      Logger.error('Error exporting quotes to CSV', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId: (req as AuthRequest).user?.userId,
+      });
+      return ApiResponseUtil.serverError(res, 'Erro ao exportar orçamentos para CSV');
+    }
+  }
+
+  // Export quotes to PDF (Admin)
+  static async exportPDFAdmin(req: Request, res: Response): Promise<Response | void> {
+    try {
+      const { status, serviceId, search, dateFrom, dateTo } = req.query;
+
+      const where: any = {};
+      if (status) where.status = status;
+      if (serviceId) where.serviceId = serviceId;
+
+      // Search filter
+      if (search) {
+        where.OR = [
+          { customer: { name: { contains: search as string, mode: 'insensitive' } } },
+          { customer: { email: { contains: search as string, mode: 'insensitive' } } },
+          { equipment: { contains: search as string, mode: 'insensitive' } },
+          { vehicle: { contains: search as string, mode: 'insensitive' } },
+        ];
+      }
+
+      // Date range filter
+      if (dateFrom || dateTo) {
+        where.createdAt = {};
+        if (dateFrom) where.createdAt.gte = new Date(dateFrom as string);
+        if (dateTo) {
+          const endDate = new Date(dateTo as string);
+          endDate.setHours(23, 59, 59, 999);
+          where.createdAt.lte = endDate;
+        }
+      }
+
+      const quotes = await prisma.quote.findMany({
+        where,
+        include: {
+          customer: true,
+          service: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      Logger.info('Quotes exported to PDF', {
+        total: quotes.length,
+        filters: { status, serviceId, search, dateFrom, dateTo },
+        userId: (req as AuthRequest).user?.userId,
+      });
+
+      await ExportService.exportQuotesToPDF(quotes as any, res);
+    } catch (error) {
+      Logger.error('Error exporting quotes to PDF', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId: (req as AuthRequest).user?.userId,
+      });
+      return ApiResponseUtil.serverError(res, 'Erro ao exportar orçamentos para PDF');
     }
   }
 }
