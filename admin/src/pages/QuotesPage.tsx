@@ -25,6 +25,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import QuoteDetailsModal from '@/components/QuoteDetailsModal';
 import { quoteService } from '@/services/quote.service';
 import type { Quote } from '@/types';
@@ -53,6 +63,8 @@ export default function QuotesPage() {
   const [page, setPage] = useState(0);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [quoteToDelete, setQuoteToDelete] = useState<Quote | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const take = 10;
   const queryClient = useQueryClient();
 
@@ -78,6 +90,20 @@ export default function QuotesPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => quoteService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setIsDeleteDialogOpen(false);
+      setQuoteToDelete(null);
+      toast.success('Orçamento excluído com sucesso');
+    },
+    onError: () => {
+      toast.error('Erro ao excluir orçamento');
+    },
+  });
+
   const handleStatusChange = (quote: Quote, newStatus: QuoteStatus) => {
     updateStatusMutation.mutate({ id: quote.id, status: newStatus });
   };
@@ -90,6 +116,22 @@ export default function QuotesPage() {
   const handleCloseDetails = () => {
     setIsDetailsOpen(false);
     setSelectedQuote(null);
+  };
+
+  const handleDeleteClick = (quote: Quote) => {
+    setQuoteToDelete(quote);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (quoteToDelete) {
+      deleteMutation.mutate(quoteToDelete.id);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setQuoteToDelete(null);
   };
 
   const filteredQuotes = data?.data.filter((quote) => {
@@ -256,7 +298,10 @@ export default function QuotesPage() {
                                 <Eye className="h-4 w-4 mr-2" />
                                 Ver Detalhes
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive">
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => handleDeleteClick(quote)}
+                              >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Excluir
                               </DropdownMenuItem>
@@ -316,6 +361,27 @@ export default function QuotesPage() {
         open={isDetailsOpen}
         onClose={handleCloseDetails}
       />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o orçamento de{' '}
+              <strong>{quoteToDelete?.customer.name}</strong>? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
