@@ -1,7 +1,7 @@
 # ✅ Progresso do Desenvolvimento - Pulse Tronic
 
-**Última Atualização:** 06/11/2025 - 06:15
-**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (68%)
+**Última Atualização:** 06/11/2025 - 07:00
+**Status Geral:** Fase 1 e 2 COMPLETAS! Fase 3 em andamento (70%)
 
 ---
 
@@ -11,7 +11,7 @@
 |------|--------|-----------|----------------|
 | Fase 1 - Backend Core | ✅ Completo | 100% | ✅ Concluída |
 | Fase 2 - Integrações | ✅ Completo | 100% | ✅ Concluída |
-| Fase 3 - Admin Panel | 🟡 Em Progresso | 68% | 3-4 semanas |
+| Fase 3 - Admin Panel | 🟡 Em Progresso | 70% | 3-4 semanas |
 | Fase 4 - Features Avançadas | ⚪ Pendente | 0% | 4-5 semanas |
 | Fase 5 - Otimizações | ⚪ Pendente | 0% | 2-3 semanas |
 
@@ -430,7 +430,7 @@
 - ✅ Remover imports não utilizados
 - ✅ Build bem sucedido sem erros
 
-### 3.4 Gerenciamento de Orçamentos (✅ 90% COMPLETO)
+### 3.4 Gerenciamento de Orçamentos (✅ 95% COMPLETO)
 
 **Concluído:**
 
@@ -500,10 +500,30 @@
 - `admin/src/components/QuoteDetailsModal.tsx`
 - `admin/package.json` (dep: @radix-ui/react-dialog)
 
+**Exclusão de Orçamentos (✅ COMPLETO):**
+
+- ✅ AlertDialog component (Radix UI) criado
+  - Overlay com animações
+  - Header, Footer, Title, Description
+  - Action e Cancel buttons
+  - Responsivo e acessível
+- ✅ Funcionalidade de deletar com confirmação
+  - deleteMutation com TanStack Query
+  - Dialog de confirmação com nome do cliente
+  - Aviso "Esta ação não pode ser desfeita"
+  - Toast notifications
+  - Cache invalidation automática
+  - Loading state no botão
+  - Botão Excluir (vermelho/destructive)
+
+**Arquivos Adicionais:**
+
+- `admin/src/components/ui/alert-dialog.tsx`
+- `admin/package.json` (dep: @radix-ui/react-alert-dialog)
+
 **Pendente:**
 
 - [ ] Filtros avançados (por status, data range)
-- [ ] Funcionalidade de deletar orçamento
 - [ ] Export CSV/PDF
 
 ### 3.5 Gerenciamento de Contatos (✅ 80% COMPLETO)
