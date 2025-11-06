@@ -147,7 +147,7 @@ export default function QuoteDetailsModal({
               {quote.service && (
                 <div>
                   <p className="text-sm text-muted-foreground">Serviço Solicitado</p>
-                  <p className="font-medium">{quote.service.name}</p>
+                  <p className="font-medium">{quote.service.title}</p>
                 </div>
               )}
               {quote.description && (

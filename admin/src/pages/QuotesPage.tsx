@@ -345,7 +345,7 @@ export default function QuotesPage() {
                               {quote.equipmentBrand} {quote.equipmentModel}
                             </div>
                             {quote.service && (
-                              <div className="text-muted-foreground">{quote.service.name}</div>
+                              <div className="text-muted-foreground">{quote.service.title}</div>
                             )}
                           </div>
                         </TableCell>
