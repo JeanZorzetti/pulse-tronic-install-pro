@@ -611,11 +611,75 @@
 
 - [ ] Link para recursos relacionados (clicar abre modal do quote/contact)
 
-### 3.7 Configurações e CMS (0%)
+### 3.7 CMS - Gerenciamento de Serviços (✅ 60% COMPLETO)
 
-**Planejado:**
+**Backend CRUD Completo (✅ 100%):**
 
-- [ ] Gerenciar serviços (CRUD)
+- ✅ ServiceController com 6 endpoints admin
+  - getAllAdmin() - Lista com filtros (category, isActive)
+  - getByIdAdmin() - Busca por ID com items
+  - createAdmin() - Criar com validação de slug
+  - updateAdmin() - Atualizar com recreação de items
+  - deleteAdmin() - Deletar com proteção de quotes
+  - toggleActiveAdmin() - Toggle ativo/inativo
+- ✅ Rotas admin configuradas em /api/admin/services
+- ✅ Logger integrado em todas as operações
+- ✅ Validações de negócio (slug único, proteção contra delete)
+- ✅ Suporte completo a ServiceItems (batch create/update)
+
+**Frontend Service Layer (✅ 100%):**
+
+- ✅ serviceService.ts criado com 6 métodos
+- ✅ Types atualizados (Service, ServiceItem, ServiceCategory)
+- ✅ Category enum: MULTIMEDIA, SOUND, CAMERA, SECURITY, ACCESSORIES
+
+**ServicesPage UI (✅ 100%):**
+
+- ✅ Tabela completa com 7 colunas
+  - Serviço (título + descrição)
+  - Categoria (badges coloridas)
+  - Tempo Estimado
+  - Items (contagem)
+  - Orçamentos (count)
+  - Status (Ativo/Inativo)
+  - Ações (Ver, Editar, Toggle, Excluir)
+- ✅ 4 Cards de estatísticas
+  - Total de Serviços
+  - Ativos (verde)
+  - Inativos (cinza)
+  - Total de Orçamentos
+- ✅ Toggle Active/Inactive funcional
+  - Mutation com TanStack Query
+  - Toast notifications
+  - Ícone Power com cor dinâmica
+- ✅ Delete com proteção
+  - AlertDialog de confirmação
+  - Bloqueia se houver quotes associados
+  - Mensagem específica de erro
+  - Botão desabilitado quando protegido
+- ✅ Loading states e empty states
+- ✅ Category badges com 5 cores diferentes
+- ✅ Rota /services configurada
+- ✅ Link no Sidebar (já existia)
+
+**Arquivos Criados:**
+
+- `Backend/src/controllers/service.controller.ts` (admin methods)
+- `Backend/src/routes/admin.routes.ts` (6 rotas services)
+- `admin/src/services/service.service.ts`
+- `admin/src/pages/ServicesPage.tsx`
+
+**TypeScript Fixes:**
+
+- ✅ Corrigido Service.name → Service.title
+  - QuoteDetailsModal.tsx
+  - QuotesPage.tsx
+
+**Pendente:**
+
+- [ ] Modal de criar/editar serviço
+- [ ] Gerenciamento de ServiceItems no modal
+- [ ] Modal de visualização de detalhes
 - [ ] Gerenciar FAQs (CRUD)
 - [ ] Gerenciar depoimentos (aprovar/reprovar)
 - [ ] Upload de imagens para galeria
