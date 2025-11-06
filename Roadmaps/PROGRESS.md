@@ -611,7 +611,7 @@
 
 - [ ] Link para recursos relacionados (clicar abre modal do quote/contact)
 
-### 3.7 CMS - Gerenciamento de Serviços (✅ 60% COMPLETO)
+### 3.7 CMS - Gerenciamento de Serviços (✅ 90% COMPLETO)
 
 **Backend CRUD Completo (✅ 100%):**
 
@@ -675,11 +675,39 @@
   - QuoteDetailsModal.tsx
   - QuotesPage.tsx
 
+**ServiceFormModal (✅ 100%):**
+
+- ✅ Modal completo de criar/editar serviços
+  - 3 seções: Informações Básicas, Items Inclusos, SEO
+  - Auto-geração de slug do título (normalização, lowercase)
+  - Validação de campos obrigatórios
+  - Estados de loading
+- ✅ Gerenciamento completo de ServiceItems
+  - Input + botão "Adicionar"
+  - Lista com reordenação (botões ↑↓)
+  - Remover items (botão lixeira)
+  - Display order automático sequencial
+  - Max-height com scroll
+  - Empty state quando sem items
+- ✅ Campos SEO opcionais
+  - Meta Título (60 caracteres + contador)
+  - Meta Descrição (160 caracteres + contador)
+- ✅ Create/Update mutations
+  - TanStack Query integration
+  - Toast notifications
+  - Cache invalidation
+- ✅ Integração completa na ServicesPage
+  - Botões "Novo Serviço" e "Editar"
+  - Loading states nos botões
+  - Reset automático ao fechar
+
+**Arquivos Adicionais:**
+
+- `admin/src/components/ServiceFormModal.tsx` (~400 linhas)
+
 **Pendente:**
 
-- [ ] Modal de criar/editar serviço
-- [ ] Gerenciamento de ServiceItems no modal
-- [ ] Modal de visualização de detalhes
+- [ ] Modal de visualização de detalhes (read-only)
 - [ ] Gerenciar FAQs (CRUD)
 - [ ] Gerenciar depoimentos (aprovar/reprovar)
 - [ ] Upload de imagens para galeria
