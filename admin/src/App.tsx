@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import QuotesPage from './pages/QuotesPage';
 import ContactsPage from './pages/ContactsPage';
 import ServicesPage from './pages/ServicesPage';
+import { FAQsPage } from './pages/FAQsPage';
 import PrivateRoute from './components/PrivateRoute';
 
 const queryClient = new QueryClient({
@@ -54,6 +55,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <ServicesPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/faqs"
+              element={
+                <PrivateRoute>
+                  <FAQsPage />
                 </PrivateRoute>
               }
             />

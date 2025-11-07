@@ -157,6 +157,17 @@ export interface PaginatedResponse<T> {
   take: number;
 }
 
+// FAQ Types
+export interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Dashboard Stats
 export interface DashboardStats {
   quotesToday: number;

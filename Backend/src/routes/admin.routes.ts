@@ -5,6 +5,7 @@ import { ContactController } from '../controllers/contact.controller';
 import { NotificationController } from '../controllers/notification.controller';
 import { DashboardController } from '../controllers/dashboard.controller';
 import { ServiceController } from '../controllers/service.controller';
+import { FAQController } from '../controllers/faq.controller';
 
 const router = Router();
 
@@ -206,5 +207,53 @@ router.delete('/services/:id', ServiceController.deleteAdmin);
  * @access  Private (Admin/Manager)
  */
 router.patch('/services/:id/toggle-active', ServiceController.toggleActiveAdmin);
+
+
+/**
+ * FAQs Management (CMS)
+ */
+
+/**
+ * @route   GET /api/admin/faqs
+ * @desc    Get all FAQs (including inactive)
+ * @access  Private (Admin/Manager)
+ */
+router.get('/faqs', FAQController.getAllAdmin);
+
+/**
+ * @route   GET /api/admin/faqs/:id
+ * @desc    Get FAQ by ID
+ * @access  Private (Admin/Manager)
+ */
+router.get('/faqs/:id', FAQController.getByIdAdmin);
+
+/**
+ * @route   POST /api/admin/faqs
+ * @desc    Create new FAQ
+ * @access  Private (Admin/Manager)
+ */
+router.post('/faqs', FAQController.createAdmin);
+
+/**
+ * @route   PUT /api/admin/faqs/:id
+ * @desc    Update FAQ
+ * @access  Private (Admin/Manager)
+ */
+router.put('/faqs/:id', FAQController.updateAdmin);
+
+/**
+ * @route   DELETE /api/admin/faqs/:id
+ * @desc    Delete FAQ
+ * @access  Private (Admin/Manager)
+ */
+router.delete('/faqs/:id', FAQController.deleteAdmin);
+
+/**
+ * @route   PATCH /api/admin/faqs/:id/toggle-active
+ * @desc    Toggle FAQ active status
+ * @access  Private (Admin/Manager)
+ */
+router.patch('/faqs/:id/toggle-active', FAQController.toggleActiveAdmin);
+
 
 export default router;
