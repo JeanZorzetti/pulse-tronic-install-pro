@@ -14,10 +14,34 @@ const app: Application = express();
 // Security Middleware
 app.use(helmet());
 
-// CORS Configuration
+// CORS Configuration with detailed logging
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  Logger.info('CORS Request received', {
+    method: req.method,
+    origin,
+    path: req.path,
+    allowedOrigins: [env.FRONTEND_URL, env.ADMIN_URL],
+  });
+  next();
+});
+
 app.use(
   cors({
-    origin: [env.FRONTEND_URL, env.ADMIN_URL],
+    origin: (origin, callback) => {
+      Logger.info('CORS origin check', {
+        requestOrigin: origin,
+        allowedOrigins: [env.FRONTEND_URL, env.ADMIN_URL],
+        isAllowed: !origin || [env.FRONTEND_URL, env.ADMIN_URL].includes(origin)
+      });
+
+      if (!origin || [env.FRONTEND_URL, env.ADMIN_URL].includes(origin)) {
+        callback(null, true);
+      } else {
+        Logger.error('CORS origin rejected', { origin });
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
