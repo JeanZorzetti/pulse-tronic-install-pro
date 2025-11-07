@@ -24,6 +24,9 @@ app.use(
   })
 );
 
+// Explicit OPTIONS handler for all routes
+app.options('*', cors());
+
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
