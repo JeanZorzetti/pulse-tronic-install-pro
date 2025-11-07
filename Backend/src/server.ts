@@ -15,7 +15,7 @@ const app: Application = express();
 app.use(helmet());
 
 // CORS Configuration with detailed logging
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   const origin = req.headers.origin;
   Logger.info('CORS Request received', {
     method: req.method,
