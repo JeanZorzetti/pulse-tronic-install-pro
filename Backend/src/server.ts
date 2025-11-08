@@ -51,13 +51,14 @@ app.use(
 // Explicit OPTIONS handler for all routes
 app.options('*', cors());
 
-// Rate Limiting
+// Rate Limiting (skip OPTIONS requests for CORS preflight)
 const limiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
   max: env.RATE_LIMIT_MAX_REQUESTS,
   message: 'Muitas requisições deste IP, tente novamente mais tarde.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS',
 });
 
 app.use('/api/', limiter);
