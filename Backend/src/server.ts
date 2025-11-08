@@ -80,6 +80,21 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
+// Test CORS endpoint
+app.get('/test-cors', (_req: Request, res: Response) => {
+  res.status(200).json({
+    message: 'CORS working',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.post('/test-cors', (_req: Request, res: Response) => {
+  res.status(200).json({
+    message: 'POST CORS working',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // API Routes
 app.use('/api', routes);
 
